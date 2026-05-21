@@ -17,8 +17,8 @@ const projects = [
     ],
     role: "Team Member",
     focus: "Application Design, Requirement Planning, Workflow Design",
-    repoUrl: "",
-    demoUrl: "",
+    repoUrl: "-",
+    demoUrl: "-",
     repoLabel: "GitHub repo for Clothing Rental Application",
     demoLabel: "Live demo for Clothing Rental Application",
   },
@@ -78,7 +78,7 @@ const projects = [
     focus:
       "Deep Learning, Computer Vision, Sign Language Recognition, Prototype Testing",
     repoUrl: "https://github.com/godlovesmei/signify-ai",
-    demoUrl: "",
+    demoUrl: "-",
     repoLabel: "GitHub repo for Sign Language Recognition System",
     demoLabel: "Live demo for Sign Language Recognition System",
   },
@@ -516,7 +516,7 @@ export default function Home() {
                 <li>
                   <span>LinkedIn</span>
                   <a
-                    href="https://www.linkedin.com/in/bunga-citra-38378440b/"
+                    href="https://www.linkedin.com/in/bungacitras/"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -542,7 +542,7 @@ export default function Home() {
                 </a>
                 <a
                   className="coupon-btn secondary"
-                  href="https://www.linkedin.com/in/bunga-citra-38378440b/"
+                  href="https://www.linkedin.com/in/bungacitras/"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
