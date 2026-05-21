@@ -163,6 +163,7 @@
     .section {
       padding: 62px 0;
       position: relative;
+      scroll-margin-top: 120px;
     }
 
     .hero {
@@ -171,9 +172,9 @@
 
     .hero-grid {
       display: grid;
-      grid-template-columns: 1.25fr 0.75fr;
+      grid-template-columns: 1.42fr 0.58fr;
       gap: 28px;
-      align-items: stretch;
+      align-items: center;
     }
 
     .poster-panel,
@@ -336,6 +337,12 @@
 
     .coupon-btn.secondary { background: var(--teal); color: var(--cream); }
     .small-btn { min-height: 38px; padding: 9px 12px; font-size: 0.74rem; background: var(--cream); }
+    .small-btn.is-disabled {
+      cursor: not-allowed;
+      opacity: .58;
+      filter: grayscale(.25);
+      box-shadow: 3px 3px 0 rgba(88,61,43,.12);
+    }
     .small-btn.dark { background: var(--navy); color: var(--cream); }
 
     .coupon-btn:hover,
@@ -347,26 +354,32 @@
       outline: none;
     }
 
+    .small-btn.is-disabled:hover {
+      transform: none;
+      background: var(--cream);
+      box-shadow: 3px 3px 0 rgba(88,61,43,.12);
+    }
+
     .side-card {
-      padding: 24px;
+      padding: 20px;
       background: var(--paper-deep);
       transform: rotate(1.5deg);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      gap: 18px;
+      gap: 14px;
     }
 
     .side-card h3 {
       margin: 0;
       font-family: var(--display);
-      font-size: 2.3rem;
+      font-size: 1.95rem;
       color: var(--orange-dark);
       line-height: 1;
     }
 
     .stamp {
-      width: 154px;
+      width: 132px;
       aspect-ratio: 1;
       display: grid;
       place-items: center;
@@ -377,22 +390,39 @@
       color: var(--teal-dark);
       text-align: center;
       font-family: var(--display);
-      font-size: 1.25rem;
+      font-size: 1.08rem;
       font-weight: 900;
       line-height: 1.05;
       transform: rotate(-12deg);
       box-shadow: 7px 7px 0 rgba(88,61,43,.18);
+      cursor: pointer;
+      text-decoration: none;
+      transition: box-shadow 180ms ease, filter 180ms ease, transform 180ms ease;
+    }
+
+    .stamp:hover,
+    .stamp:focus-visible {
+      filter: saturate(1.08);
+      outline: none;
+      box-shadow: 10px 10px 0 rgba(88,61,43,.2);
+    }
+
+    .stamp:active {
+      transform: translate(5px, 5px) rotate(-12deg) scale(.97);
+      box-shadow: 2px 2px 0 rgba(88,61,43,.2);
+      filter: saturate(.96);
     }
 
     .ticker {
       display: grid;
-      gap: 10px;
+      gap: 8px;
       font-weight: 900;
       color: var(--navy);
+      font-size: 0.9rem;
     }
 
     .ticker span {
-      padding: 9px 10px;
+      padding: 8px 9px;
       border: 2px dashed var(--brown);
       background: rgba(255,250,240,.62);
     }
@@ -753,6 +783,7 @@
 
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
+        animation: none !important;
         scroll-behavior: auto !important;
         transition: none !important;
       }
@@ -808,7 +839,7 @@
             <span class="label teal">PBL Collection</span>
             <h3>Open File No. 04</h3>
           </div>
-          <div class="stamp">AI<br />VISION<br />STUDENT</div>
+          <a class="stamp" href="#about" aria-label="Buka bagian About Bunga">AI<br />VISION<br />STUDENT</a>
           <div class="ticker">
             <span>✦ Batam, Riau Islands</span>
             <span>✦ Politeknik Negeri Batam</span>
@@ -879,8 +910,8 @@
                   <h4>Focus Areas</h4>
                   <p>Application Design, Requirement Planning, Workflow Design</p>
                   <div class="button-row">
-                    <a class="small-btn" href="https://github.com/bbbunga" target="_blank" rel="noopener noreferrer" aria-label="GitHub repo for Clothing Rental Application">GitHub Repo</a>
-                    <a class="small-btn" href="#" aria-label="Live demo for Clothing Rental Application">Live Demo</a>
+                    <span class="small-btn is-disabled" aria-disabled="true">GitHub Repo</span>
+                    <span class="small-btn is-disabled" aria-disabled="true">Live Demo -</span>
                   </div>
                 </div>
               </div>
@@ -910,8 +941,8 @@
                   <h4>Focus Areas</h4>
                   <p>Web Development, UI Planning, Application Logic, Documentation</p>
                   <div class="button-row">
-                    <a class="small-btn" href="https://github.com/bbbunga" target="_blank" rel="noopener noreferrer" aria-label="GitHub repo for MyLodies">GitHub Repo</a>
-                    <a class="small-btn" href="#" aria-label="Live demo for MyLodies">Live Demo</a>
+                    <a class="small-btn" href="https://github.com/lihh72/mylodies-pbl" target="_blank" rel="noopener noreferrer" aria-label="GitHub repo for MyLodies">GitHub Repo</a>
+                    <a class="small-btn" href="https://mylodies.xyz/" target="_blank" rel="noopener noreferrer" aria-label="Live demo for MyLodies">Live Demo</a>
                   </div>
                 </div>
               </div>
@@ -941,8 +972,8 @@
                   <h4>Focus Areas</h4>
                   <p>Artificial Intelligence, Generative AI, Diffusion Models, Research Documentation</p>
                   <div class="button-row">
-                    <a class="small-btn" href="https://github.com/bbbunga" target="_blank" rel="noopener noreferrer" aria-label="GitHub repo for Diffusion Model project">GitHub Repo</a>
-                    <a class="small-btn" href="#" aria-label="Live demo for Diffusion Model project">Live Demo</a>
+                    <a class="small-btn" href="https://github.com/agunghakase/aibatik" target="_blank" rel="noopener noreferrer" aria-label="GitHub repo for Diffusion Model project">GitHub Repo</a>
+                    <a class="small-btn" href="https://tribevis-ai.vercel.app/" target="_blank" rel="noopener noreferrer" aria-label="Live demo for Diffusion Model project">Live Demo</a>
                   </div>
                 </div>
               </div>
@@ -972,8 +1003,8 @@
                   <h4>Focus Areas</h4>
                   <p>Deep Learning, Computer Vision, Sign Language Recognition, Prototype Testing</p>
                   <div class="button-row">
-                    <a class="small-btn" href="https://github.com/bbbunga" target="_blank" rel="noopener noreferrer" aria-label="GitHub repo for Sign Language Recognition System">GitHub Repo</a>
-                    <a class="small-btn" href="#" aria-label="Live demo for Sign Language Recognition System">Live Demo</a>
+                    <a class="small-btn" href="https://github.com/godlovesmei/signify-ai" target="_blank" rel="noopener noreferrer" aria-label="GitHub repo for Sign Language Recognition System">GitHub Repo</a>
+                    <span class="small-btn is-disabled" aria-disabled="true">Live Demo -</span>
                   </div>
                 </div>
               </div>
@@ -1124,7 +1155,8 @@
       card.addEventListener('click', (event) => {
         const clickedLink = event.target.closest('a');
         const clickedButton = event.target.closest('button');
-        if (clickedLink || clickedButton) return;
+        const clickedDisabled = event.target.closest('.is-disabled');
+        if (clickedLink || clickedButton || clickedDisabled) return;
         toggleProjectCard(card);
       });
 

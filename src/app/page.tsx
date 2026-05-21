@@ -17,6 +17,8 @@ const projects = [
     ],
     role: "Team Member",
     focus: "Application Design, Requirement Planning, Workflow Design",
+    repoUrl: "",
+    demoUrl: "",
     repoLabel: "GitHub repo for Clothing Rental Application",
     demoLabel: "Live demo for Clothing Rental Application",
   },
@@ -34,6 +36,8 @@ const projects = [
     ],
     role: "Team Member",
     focus: "Web Development, UI Planning, Application Logic, Documentation",
+    repoUrl: "https://github.com/lihh72/mylodies-pbl",
+    demoUrl: "https://mylodies.xyz/",
     repoLabel: "GitHub repo for MyLodies",
     demoLabel: "Live demo for MyLodies",
   },
@@ -53,6 +57,8 @@ const projects = [
     role: "Team Member",
     focus:
       "Artificial Intelligence, Generative AI, Diffusion Models, Research Documentation",
+    repoUrl: "https://github.com/nijam10/EtnivisAI",
+    demoUrl: "https://tribevis-ai.vercel.app/",
     repoLabel: "GitHub repo for Diffusion Model project",
     demoLabel: "Live demo for Diffusion Model project",
   },
@@ -71,6 +77,8 @@ const projects = [
     role: "Team Member",
     focus:
       "Deep Learning, Computer Vision, Sign Language Recognition, Prototype Testing",
+    repoUrl: "https://github.com/godlovesmei/signify-ai",
+    demoUrl: "",
     repoLabel: "GitHub repo for Sign Language Recognition System",
     demoLabel: "Live demo for Sign Language Recognition System",
   },
@@ -137,8 +145,9 @@ function ProjectCard({ project }: { project: (typeof projects)[number] }) {
     const target = event.target as HTMLElement;
     const clickedLink = target.closest("a");
     const clickedButton = target.closest("button");
+    const clickedDisabled = target.closest(".is-disabled");
 
-    if (clickedLink || clickedButton) return;
+    if (clickedLink || clickedButton || clickedDisabled) return;
 
     toggleProjectCard();
   };
@@ -200,18 +209,37 @@ function ProjectCard({ project }: { project: (typeof projects)[number] }) {
             <p>{project.focus}</p>
 
             <div className="button-row">
-              <a
-                className="small-btn"
-                href="https://github.com/bbbunga"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={project.repoLabel}
-              >
-                GitHub Repo
-              </a>
-              <a className="small-btn" href="#" aria-label={project.demoLabel}>
-                Live Demo
-              </a>
+              {project.repoUrl ? (
+                <a
+                  className="small-btn"
+                  href={project.repoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={project.repoLabel}
+                >
+                  GitHub Repo
+                </a>
+              ) : (
+                <span className="small-btn is-disabled" aria-disabled="true">
+                  GitHub Repo
+                </span>
+              )}
+
+              {project.demoUrl ? (
+                <a
+                  className="small-btn"
+                  href={project.demoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={project.demoLabel}
+                >
+                  Live Demo
+                </a>
+              ) : (
+                <span className="small-btn is-disabled" aria-disabled="true">
+                  Live Demo -
+                </span>
+              )}
             </div>
           </div>
         </div>
@@ -296,13 +324,17 @@ export default function Home() {
                 <h3>Open File No. 04</h3>
               </div>
 
-              <div className="stamp">
+              <a
+                className="stamp"
+                href="#about"
+                aria-label="Buka bagian About Bunga"
+              >
                 AI
                 <br />
                 VISION
                 <br />
                 STUDENT
-              </div>
+              </a>
 
               <div className="ticker">
                 <span>✦ Batam, Riau Islands</span>
