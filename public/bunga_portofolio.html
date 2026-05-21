@@ -1,0 +1,1144 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bunga's Digital Archive</title>
+  <style>
+    :root {
+      --paper: #f6ead1;
+      --paper-deep: #ecd7ac;
+      --cream: #fff5df;
+      --orange: #c76534;
+      --orange-dark: #9c4426;
+      --mustard: #d8a63b;
+      --teal: #2f8d8b;
+      --teal-dark: #1d5f64;
+      --navy: #243f54;
+      --brown: #583d2b;
+      --ink: #39291d;
+      --muted: #6b533e;
+      --white: #fffaf0;
+      --shadow: rgba(72, 48, 29, 0.28);
+      --border: 3px solid var(--brown);
+      --radius: 22px;
+      --display: Georgia, 'Times New Roman', serif;
+      --body: 'Trebuchet MS', Verdana, sans-serif;
+      --script: 'Brush Script MT', 'Lucida Handwriting', cursive;
+    }
+
+    * { box-sizing: border-box; }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: var(--body);
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 20% 10%, rgba(216, 166, 59, 0.2), transparent 28%),
+        radial-gradient(circle at 80% 25%, rgba(47, 141, 139, 0.16), transparent 24%),
+        linear-gradient(135deg, rgba(88, 61, 43, 0.05) 25%, transparent 25%) 0 0 / 20px 20px,
+        var(--paper);
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.22;
+      background-image:
+        repeating-radial-gradient(circle at 0 0, rgba(88,61,43,.18) 0 1px, transparent 1px 5px),
+        repeating-linear-gradient(90deg, rgba(88,61,43,.05) 0 1px, transparent 1px 7px);
+      mix-blend-mode: multiply;
+      z-index: 100;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .container {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .skip-link {
+      position: absolute;
+      left: 16px;
+      top: -60px;
+      background: var(--navy);
+      color: var(--white);
+      padding: 12px 16px;
+      z-index: 200;
+      border-radius: 0 0 12px 12px;
+    }
+
+    .skip-link:focus { top: 0; }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 99;
+      background: rgba(246, 234, 209, 0.92);
+      backdrop-filter: blur(2px);
+      border-bottom: 4px double var(--brown);
+    }
+
+    .header-wrap {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 22px;
+      align-items: center;
+      padding: 18px 0 16px;
+    }
+
+    .brand {
+      position: relative;
+      display: inline-block;
+      padding: 8px 20px 10px;
+      background: var(--orange);
+      color: var(--cream);
+      border: var(--border);
+      box-shadow: 6px 6px 0 var(--mustard);
+      transform: rotate(-1deg);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-family: var(--display);
+      font-size: clamp(2rem, 5vw, 4rem);
+      letter-spacing: 0.08em;
+      line-height: 0.92;
+      text-shadow: 2px 2px 0 var(--orange-dark);
+    }
+
+    .brand p {
+      margin: 4px 0 0;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .nav-ribbon {
+      justify-self: end;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+      padding: 9px;
+      background: var(--navy);
+      border: var(--border);
+      border-radius: 999px;
+      box-shadow: 5px 5px 0 var(--shadow);
+    }
+
+    .nav-ribbon a {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: var(--cream);
+      color: var(--brown);
+      border: 2px dashed var(--mustard);
+      font-weight: 900;
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      letter-spacing: 0.05em;
+      transition: transform 180ms ease, background 180ms ease;
+    }
+
+    .nav-ribbon a:hover,
+    .nav-ribbon a:focus-visible {
+      transform: translateY(-2px) rotate(-1deg);
+      background: var(--mustard);
+      outline: none;
+    }
+
+    main { padding-bottom: 60px; }
+
+    .section {
+      padding: 62px 0;
+      position: relative;
+    }
+
+    .hero {
+      padding: 58px 0 72px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 28px;
+      align-items: stretch;
+    }
+
+    .poster-panel,
+    .side-card,
+    .retro-panel,
+    .archive-card,
+    .note-card {
+      background: var(--cream);
+      border: var(--border);
+      border-radius: var(--radius);
+      box-shadow: 9px 9px 0 var(--shadow);
+      position: relative;
+    }
+
+    .poster-panel {
+      padding: clamp(28px, 5vw, 54px);
+      min-height: 470px;
+      overflow: hidden;
+      background:
+        linear-gradient(0deg, rgba(255,250,240,.72), rgba(255,250,240,.72)),
+        repeating-linear-gradient(-8deg, rgba(216,166,59,.16) 0 8px, transparent 8px 16px),
+        var(--cream);
+    }
+
+    .poster-panel::before,
+    .poster-panel::after {
+      content: "";
+      position: absolute;
+      border: 3px solid var(--brown);
+      pointer-events: none;
+    }
+
+    .poster-panel::before {
+      inset: 15px;
+      border-radius: 18px;
+      border-style: dashed;
+      opacity: 0.8;
+    }
+
+    .poster-panel::after {
+      width: 140px;
+      height: 140px;
+      right: -38px;
+      top: -38px;
+      background: var(--teal);
+      border-radius: 50%;
+      box-shadow: -14px 14px 0 var(--mustard);
+    }
+
+    .label-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .label {
+      display: inline-block;
+      padding: 7px 12px;
+      border: 2px solid var(--brown);
+      border-radius: 999px;
+      background: var(--mustard);
+      color: var(--brown);
+      font-weight: 900;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      box-shadow: 3px 3px 0 rgba(88,61,43,.2);
+    }
+
+    .label.teal { background: var(--teal); color: var(--cream); }
+    .label.orange { background: var(--orange); color: var(--cream); }
+    .label.cream { background: var(--cream); }
+
+    .hero h2 {
+      margin: 0;
+      position: relative;
+      z-index: 1;
+      font-family: var(--display);
+      font-size: clamp(3.1rem, 10vw, 7.6rem);
+      line-height: 0.88;
+      letter-spacing: -0.055em;
+      color: var(--navy);
+      text-transform: uppercase;
+      text-shadow: 4px 4px 0 var(--mustard), 7px 7px 0 rgba(88,61,43,.18);
+    }
+
+    .hero .accent {
+      display: block;
+      margin: 12px 0 18px;
+      font-family: var(--script);
+      font-size: clamp(1.9rem, 4vw, 3.3rem);
+      color: var(--orange-dark);
+      transform: rotate(-2deg);
+    }
+
+    .subheadline {
+      width: fit-content;
+      max-width: 100%;
+      position: relative;
+      z-index: 1;
+      margin: 22px 0;
+      padding: 11px 16px;
+      background: var(--navy);
+      color: var(--cream);
+      border: 2px solid var(--brown);
+      font-weight: 900;
+      letter-spacing: 0.04em;
+      box-shadow: 5px 5px 0 var(--orange);
+    }
+
+    .intro {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      font-family: var(--display);
+      font-size: 1.16rem;
+      line-height: 1.75;
+      color: var(--brown);
+    }
+
+    .cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 28px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .coupon-btn,
+    .small-btn {
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      gap: 8px;
+      border: 3px solid var(--brown);
+      background: var(--mustard);
+      color: var(--brown);
+      font-weight: 1000;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      min-height: 46px;
+      padding: 12px 18px;
+      border-radius: 12px;
+      box-shadow: 5px 5px 0 var(--shadow);
+      cursor: pointer;
+      transition: transform 180ms ease, box-shadow 180ms ease, background 180ms ease;
+      font-family: var(--body);
+      font-size: 0.84rem;
+    }
+
+    .coupon-btn::before,
+    .coupon-btn::after {
+      content: "✶";
+      font-size: 0.72rem;
+    }
+
+    .coupon-btn.secondary { background: var(--teal); color: var(--cream); }
+    .small-btn { min-height: 38px; padding: 9px 12px; font-size: 0.74rem; background: var(--cream); }
+    .small-btn.dark { background: var(--navy); color: var(--cream); }
+
+    .coupon-btn:hover,
+    .coupon-btn:focus-visible,
+    .small-btn:hover,
+    .small-btn:focus-visible {
+      transform: translate(-2px, -2px) rotate(-1deg);
+      box-shadow: 8px 8px 0 var(--shadow);
+      outline: none;
+    }
+
+    .side-card {
+      padding: 24px;
+      background: var(--paper-deep);
+      transform: rotate(1.5deg);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .side-card h3 {
+      margin: 0;
+      font-family: var(--display);
+      font-size: 2.3rem;
+      color: var(--orange-dark);
+      line-height: 1;
+    }
+
+    .stamp {
+      width: 154px;
+      aspect-ratio: 1;
+      display: grid;
+      place-items: center;
+      align-self: center;
+      border: 5px double var(--brown);
+      border-radius: 50%;
+      background: var(--cream);
+      color: var(--teal-dark);
+      text-align: center;
+      font-family: var(--display);
+      font-size: 1.25rem;
+      font-weight: 900;
+      line-height: 1.05;
+      transform: rotate(-12deg);
+      box-shadow: 7px 7px 0 rgba(88,61,43,.18);
+    }
+
+    .ticker {
+      display: grid;
+      gap: 10px;
+      font-weight: 900;
+      color: var(--navy);
+    }
+
+    .ticker span {
+      padding: 9px 10px;
+      border: 2px dashed var(--brown);
+      background: rgba(255,250,240,.62);
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .ribbon-title {
+      display: inline-block;
+      padding: 12px 26px;
+      background: var(--orange);
+      color: var(--cream);
+      border: var(--border);
+      box-shadow: 6px 6px 0 var(--mustard);
+      font-family: var(--display);
+      font-size: clamp(2rem, 4vw, 3.2rem);
+      line-height: 1;
+      transform: rotate(-1deg);
+    }
+
+    .section-kicker {
+      margin: 0;
+      font-family: var(--script);
+      color: var(--teal-dark);
+      font-size: 1.8rem;
+    }
+
+    .retro-panel {
+      padding: clamp(22px, 4vw, 34px);
+    }
+
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 22px;
+      align-items: start;
+    }
+
+    .retro-panel p {
+      font-family: var(--display);
+      line-height: 1.8;
+      font-size: 1.08rem;
+      margin: 0;
+    }
+
+    .details-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px;
+    }
+
+    .details-list li {
+      padding: 12px 14px;
+      border: 2px solid var(--brown);
+      border-radius: 14px;
+      background: var(--paper-deep);
+      box-shadow: 4px 4px 0 rgba(88,61,43,.12);
+    }
+
+    .details-list strong {
+      color: var(--orange-dark);
+      text-transform: uppercase;
+      font-size: 0.78rem;
+      letter-spacing: 0.08em;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .archive-subtitle {
+      margin: -8px 0 28px;
+      max-width: 760px;
+      font-family: var(--display);
+      font-size: 1.1rem;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 22px;
+    }
+
+    .archive-card {
+      padding: 22px;
+      overflow: hidden;
+      transition: transform 180ms ease, box-shadow 180ms ease;
+      background:
+        linear-gradient(90deg, transparent calc(100% - 18px), rgba(199,101,52,.35) calc(100% - 18px)),
+        var(--cream);
+    }
+
+    .archive-card:nth-child(2n) { transform: rotate(0.8deg); }
+    .archive-card:nth-child(odd) { transform: rotate(-0.8deg); }
+
+    .archive-card:hover,
+    .archive-card:focus-within {
+      transform: translateY(-4px) rotate(0deg);
+      box-shadow: 12px 12px 0 var(--shadow);
+    }
+
+    .archive-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .project-number {
+      font-family: var(--display);
+      font-size: 2.2rem;
+      color: var(--teal-dark);
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .semester-tag {
+      max-width: 190px;
+      text-align: right;
+      font-size: 0.76rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      background: var(--mustard);
+      border: 2px solid var(--brown);
+      border-radius: 999px;
+      padding: 7px 10px;
+    }
+
+    .archive-card h3 {
+      margin: 0 0 10px;
+      font-family: var(--display);
+      font-size: 1.65rem;
+      color: var(--navy);
+      line-height: 1.1;
+    }
+
+    .archive-card p {
+      margin: 0 0 16px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .project-details {
+      display: grid;
+      grid-template-rows: 0fr;
+      transition: grid-template-rows 260ms ease;
+    }
+
+    .project-details > div { overflow: hidden; }
+
+    .archive-card.expanded .project-details {
+      grid-template-rows: 1fr;
+    }
+
+    .project-details-inner {
+      padding-top: 16px;
+      border-top: 3px dashed var(--brown);
+      margin-top: 8px;
+    }
+
+    .project-details h4 {
+      margin: 12px 0 6px;
+      color: var(--orange-dark);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: 0.8rem;
+    }
+
+    .project-details ul {
+      padding-left: 20px;
+      margin: 8px 0 14px;
+      line-height: 1.6;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .skills-board {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .classified {
+      background: var(--cream);
+      border: var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 6px 6px 0 var(--shadow);
+      min-height: 100%;
+    }
+
+    .classified h3 {
+      margin: 0 0 14px;
+      padding-bottom: 8px;
+      border-bottom: 3px double var(--brown);
+      font-family: var(--display);
+      color: var(--navy);
+      font-size: 1.35rem;
+    }
+
+    .classified ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: grid;
+      gap: 8px;
+    }
+
+    .classified li {
+      position: relative;
+      padding-left: 20px;
+      line-height: 1.45;
+    }
+
+    .classified li::before {
+      content: "✦";
+      position: absolute;
+      left: 0;
+      color: var(--orange-dark);
+    }
+
+    .education-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 20px;
+    }
+
+    .note-card {
+      padding: 22px;
+      background:
+        repeating-linear-gradient(0deg, transparent 0 31px, rgba(47,141,139,.18) 31px 33px),
+        var(--cream);
+    }
+
+    .note-card h3 {
+      margin: 0 0 10px;
+      font-family: var(--display);
+      color: var(--orange-dark);
+      font-size: 1.7rem;
+    }
+
+    .note-card p {
+      margin: 6px 0;
+      font-weight: 800;
+      color: var(--navy);
+    }
+
+    .contact-panel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+      align-items: center;
+    }
+
+    .contact-list {
+      display: grid;
+      gap: 12px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .contact-list li {
+      padding: 13px 14px;
+      background: var(--paper-deep);
+      border: 2px dashed var(--brown);
+      border-radius: 14px;
+      font-weight: 900;
+    }
+
+    .contact-list span {
+      color: var(--orange-dark);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .contact-buttons {
+      display: grid;
+      gap: 12px;
+      transform: rotate(1deg);
+    }
+
+    footer {
+      border-top: 4px double var(--brown);
+      padding: 26px 0;
+      background: var(--navy);
+      color: var(--cream);
+      text-align: center;
+      font-weight: 900;
+      letter-spacing: 0.04em;
+    }
+
+    .decor-star {
+      position: absolute;
+      font-size: 4rem;
+      color: rgba(199, 101, 52, 0.22);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .decor-star.one { top: 20px; right: 5%; transform: rotate(16deg); }
+    .decor-star.two { bottom: 8px; left: 4%; transform: rotate(-12deg); color: rgba(47,141,139,.22); }
+
+    @media (max-width: 880px) {
+      .header-wrap,
+      .hero-grid,
+      .about-grid,
+      .contact-panel {
+        grid-template-columns: 1fr;
+      }
+
+      .nav-ribbon {
+        justify-self: start;
+        border-radius: 20px;
+      }
+
+      .projects-grid,
+      .education-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .skills-board {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .side-card { transform: none; }
+    }
+
+    @media (max-width: 560px) {
+      .container { width: min(100% - 22px, 1120px); }
+      .section { padding: 44px 0; }
+      .hero { padding-top: 34px; }
+      .poster-panel { padding: 28px 20px; min-height: auto; }
+      .poster-panel::before { inset: 10px; }
+      .skills-board { grid-template-columns: 1fr; }
+      .ribbon-title { width: 100%; }
+      .section-title { align-items: flex-start; flex-direction: column; }
+      .nav-ribbon a { flex: 1 1 calc(50% - 8px); justify-content: center; }
+      .semester-tag { text-align: left; max-width: none; }
+      .archive-top { flex-direction: column; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main">Lewati ke konten utama</a>
+
+  <header class="site-header">
+    <div class="container header-wrap">
+      <a class="brand" href="#hero" aria-label="Bunga home">
+        <h1>BUNGA</h1>
+        <p>Informatics Engineering Student</p>
+      </a>
+
+      <nav class="nav-ribbon" aria-label="Navigasi utama">
+        <a href="#about">About</a>
+        <a href="#projects">Project Archive</a>
+        <a href="#skills">Skills</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="hero" aria-labelledby="hero-title">
+      <div class="container hero-grid">
+        <div class="poster-panel">
+          <div class="label-row" aria-label="Archive labels">
+            <span class="label orange">Archive</span>
+            <span class="label teal">Field Notes</span>
+            <span class="label cream">Now Showing</span>
+          </div>
+
+          <h2 id="hero-title">Bunga’s<br />Digital Archive</h2>
+          <span class="accent">Collected works & curious experiments</span>
+
+          <p class="subheadline">Informatics Engineering • Software Development • AI Learning Journey • PBL Project Archive</p>
+
+          <p class="intro">
+            Hi, I’m Bunga Citra Lestari Situmorang, an Informatics Engineering student at Politeknik Negeri Batam with an interest in software development and artificial intelligence. I am currently building foundational skills through academic projects, especially in web-based application development, machine learning fundamentals, and introductory AI-related topics.
+          </p>
+
+          <div class="cta-row">
+            <a class="coupon-btn" href="#projects">View Project Archive</a>
+            <a class="coupon-btn secondary" href="#contact">Contact Me</a>
+          </div>
+        </div>
+
+        <aside class="side-card" aria-label="Personal archive decorations">
+          <div>
+            <span class="label teal">PBL Collection</span>
+            <h3>Open File No. 04</h3>
+          </div>
+          <div class="stamp">AI<br />VISION<br />STUDENT</div>
+          <div class="ticker">
+            <span>✦ Batam, Riau Islands</span>
+            <span>✦ Politeknik Negeri Batam</span>
+            <span>✦ Handmade Digital Scrapbook</span>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="about" aria-labelledby="about-title">
+      <span class="decor-star one">✹</span>
+      <div class="container">
+        <div class="section-title">
+          <h2 class="ribbon-title" id="about-title">About Bunga</h2>
+          <p class="section-kicker">Field Notes</p>
+        </div>
+
+        <div class="about-grid">
+          <article class="retro-panel">
+            <p>
+            Bunga Citra Lestari Situmorang is a fourth-semester Informatics Engineering student at Politeknik Negeri Batam. Her academic experience is centered on Project Based Learning, where she has been involved in collaborative semester projects related to web application development, application design, documentation, and introductory artificial intelligence topics. Through these projects, she is gradually building her understanding of software development, machine learning fundamentals, computer vision, and generative AI concepts.
+            </p>
+          </article>
+
+          <aside class="retro-panel" aria-label="Profile details">
+            <ul class="details-list">
+              <li><strong>Location</strong> Batam, Riau Islands</li>
+              <li><strong>Education</strong> Politeknik Negeri Batam</li>
+              <li><strong>Major</strong> Informatics Engineering</li>
+              <li><strong>Current Semester</strong> Fourth Semester</li>
+              <li><strong>Focus</strong> Software Development, Web Development, AI Fundamentals, Machine Learning</li>
+            </ul>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="projects" aria-labelledby="projects-title">
+      <span class="decor-star two">✦</span>
+      <div class="container">
+        <div class="section-title">
+          <h2 class="ribbon-title" id="projects-title">Project Archive</h2>
+          <p class="section-kicker">Open File</p>
+        </div>
+        <p class="archive-subtitle">A collection of semester-based Project Based Learning projects that reflect my learning progress in application design, web development, documentation, teamwork, and introductory AI-related topics.</p>
+
+        <div class="projects-grid">
+          <article class="archive-card" data-project-card>
+            <div class="archive-top">
+              <span class="project-number">01</span>
+              <span class="semester-tag">Semester 1 | 2024/2025</span>
+            </div>
+            <h3>Clothing Rental Application</h3>
+            <p>A rental application project focused on clothing inventory, customer records, and transaction status tracking.</p>
+            <button class="small-btn dark" type="button" aria-expanded="false">Open Archive</button>
+            <div class="project-details" aria-hidden="true">
+              <div>
+                <div class="project-details-inner">
+                  <h4>Full Description</h4>
+                  <ul>
+                    <li>Designed a rental workflow for clothing rental operations</li>
+                    <li>Organized item records, customer data, and transaction status tracking</li>
+                    <li>Prepared feature requirements, user flow drafts, and solution presentations</li>
+                    <li>Developed the project within the Project Based Learning framework</li>
+                  </ul>
+                  <h4>Role</h4>
+                  <p>Team Member</p>
+                  <h4>Focus Areas</h4>
+                  <p>Application Design, Requirement Planning, Workflow Design</p>
+                  <div class="button-row">
+                    <a class="small-btn" href="https://github.com/bbbunga" target="_blank" rel="noopener noreferrer" aria-label="GitHub repo for Clothing Rental Application">GitHub Repo</a>
+                    <a class="small-btn" href="#" aria-label="Live demo for Clothing Rental Application">Live Demo</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="archive-card" data-project-card>
+            <div class="archive-top">
+              <span class="project-number">02</span>
+              <span class="semester-tag">Semester 2 | 2024/2025</span>
+            </div>
+            <h3>MyLodies — Web-Based Music Instrument Rental Application</h3>
+            <p>A web-based rental platform for musical instruments, including catalog browsing, booking, and rental transaction management.</p>
+            <button class="small-btn dark" type="button" aria-expanded="false">Open Archive</button>
+            <div class="project-details" aria-hidden="true">
+              <div>
+                <div class="project-details-inner">
+                  <h4>Full Description</h4>
+                  <ul>
+                    <li>Designed and developed feature ideas for catalog browsing and booking</li>
+                    <li>Helped structure the rental transaction management flow</li>
+                    <li>Collaborated on interface planning and application logic</li>
+                    <li>Contributed to project documentation within a team setting</li>
+                  </ul>
+                  <h4>Role</h4>
+                  <p>Team Member</p>
+                  <h4>Focus Areas</h4>
+                  <p>Web Development, UI Planning, Application Logic, Documentation</p>
+                  <div class="button-row">
+                    <a class="small-btn" href="https://github.com/bbbunga" target="_blank" rel="noopener noreferrer" aria-label="GitHub repo for MyLodies">GitHub Repo</a>
+                    <a class="small-btn" href="#" aria-label="Live demo for MyLodies">Live Demo</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="archive-card" data-project-card>
+            <div class="archive-top">
+              <span class="project-number">03</span>
+              <span class="semester-tag">Semester 3 | 2025/2026</span>
+            </div>
+            <h3>Diffusion Model for Face Synthesis Based on Ethnic Characteristics in Indonesia</h3>
+            <p>An artificial-intelligence-based project exploring synthetic face generation using diffusion model approaches.</p>
+            <button class="small-btn dark" type="button" aria-expanded="false">Open Archive</button>
+            <div class="project-details" aria-hidden="true">
+              <div>
+                <div class="project-details-inner">
+                  <h4>Full Description</h4>
+                  <ul>
+                    <li>Explored data and model approaches for synthetic face generation</li>
+                    <li>Studied diffusion-based generative AI methods</li>
+                    <li>Contributed to experimentation, documentation, and presentation</li>
+                    <li>Strengthened understanding of generative AI workflows</li>
+                  </ul>
+                  <h4>Role</h4>
+                  <p>Team Member</p>
+                  <h4>Focus Areas</h4>
+                  <p>Artificial Intelligence, Generative AI, Diffusion Models, Research Documentation</p>
+                  <div class="button-row">
+                    <a class="small-btn" href="https://github.com/bbbunga" target="_blank" rel="noopener noreferrer" aria-label="GitHub repo for Diffusion Model project">GitHub Repo</a>
+                    <a class="small-btn" href="#" aria-label="Live demo for Diffusion Model project">Live Demo</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+
+          <article class="archive-card" data-project-card>
+            <div class="archive-top">
+              <span class="project-number">04</span>
+              <span class="semester-tag">Semester 4 | 2025/2026</span>
+            </div>
+            <h3>Real-Time Sign Language Recognition System Based on Deep Learning</h3>
+            <p>A deep-learning-based project for real-time sign language recognition using computer vision concepts.</p>
+            <button class="small-btn dark" type="button" aria-expanded="false">Open Archive</button>
+            <div class="project-details" aria-hidden="true">
+              <div>
+                <div class="project-details-inner">
+                  <h4>Full Description</h4>
+                  <ul>
+                    <li>Designed the project concept and system workflow</li>
+                    <li>Supported requirement planning and data preparation discussions</li>
+                    <li>Contributed to prototype and testing activities</li>
+                    <li>Focused on real-time recognition and computer vision application</li>
+                  </ul>
+                  <h4>Role</h4>
+                  <p>Team Member</p>
+                  <h4>Focus Areas</h4>
+                  <p>Deep Learning, Computer Vision, Sign Language Recognition, Prototype Testing</p>
+                  <div class="button-row">
+                    <a class="small-btn" href="https://github.com/bbbunga" target="_blank" rel="noopener noreferrer" aria-label="GitHub repo for Sign Language Recognition System">GitHub Repo</a>
+                    <a class="small-btn" href="#" aria-label="Live demo for Sign Language Recognition System">Live Demo</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="skills" aria-labelledby="skills-title">
+      <div class="container">
+        <div class="section-title">
+          <h2 class="ribbon-title" id="skills-title">Skills & Interests</h2>
+          <p class="section-kicker">Classified Ads</p>
+        </div>
+
+        <div class="skills-board" aria-label="Skills and interests notice board">
+          <article class="classified">
+            <h3>Technical Skills</h3>
+            <ul>
+              <li>Basic Web Development</li>
+              <li>Application Design</li>
+              <li>Basic Databases</li>
+              <li>Python Fundamentals</li>
+              <li>Machine Learning Fundamentals</li>
+              <li>Introductory Deep Learning Concepts</li>
+              <li>Introductory Computer Vision Concepts</li>
+              <li>Academic Exposure to Generative AI</li>
+            </ul>
+          </article>
+
+          <article class="classified">
+            <h3>Tools</h3>
+            <ul>
+              <li>Git</li>
+              <li>GitHub</li>
+              <li>Visual Studio Code</li>
+              <li>Microsoft Word</li>
+              <li>Figma/Canva</li>
+              <li>Postman</li>
+              <li>WSL</li>
+              <li>Basic Command Line</li>
+            </ul>
+          </article>
+
+          <article class="classified">
+            <h3>Soft Skills</h3>
+            <ul>
+              <li>Teamwork</li>
+              <li>Communication</li>
+              <li>Problem Solving</li>
+              <li>Time Management</li>
+              <li>Willingness to Learn</li>
+            </ul>
+          </article>
+
+          <article class="classified">
+            <h3>Interests</h3>
+            <ul>
+              <li>Software Development</li>
+              <li>Artificial Intelligence</li>
+              <li>Machine Learning</li>
+              <li>Computer Vision Learning</li>
+              <li>Generative AI Learning</li>
+              <li>Digital Product Development</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="education" aria-labelledby="education-title">
+      <div class="container">
+        <div class="section-title">
+          <h2 class="ribbon-title" id="education-title">Education</h2>
+          <p class="section-kicker">Academic Record</p>
+        </div>
+
+        <div class="education-grid">
+          <article class="note-card">
+            <span class="label orange">Current File</span>
+            <h3>Politeknik Negeri Batam</h3>
+            <p>Informatics Engineering</p>
+            <p>Fourth-Semester Student | 2024 — Present</p>
+          </article>
+
+          <article class="note-card">
+            <span class="label teal">Previous Record</span>
+            <h3>SMA Swasta Prayatna Medan</h3>
+            <p>Graduated | 2021 — 2024</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="contact" aria-labelledby="contact-title">
+      <div class="container">
+        <div class="section-title">
+          <h2 class="ribbon-title" id="contact-title">Get In Touch</h2>
+          <p class="section-kicker">Send a Note</p>
+        </div>
+
+        <div class="retro-panel contact-panel">
+          <ul class="contact-list">
+            <li><span>Email</span><a href="mailto:bungasitumorang738@gmail.com">bungasitumorang738@gmail.com</a></li>
+            <li><span>Location</span>Batam, Riau Islands</li>
+            <li><span>GitHub</span><a href="https://github.com/bbbunga" target="_blank" rel="noopener noreferrer">https://github.com/bbbunga</a></li>
+            <li><span>LinkedIn</span><a href="https://www.linkedin.com/in/bunga-citra-38378440b/" target="_blank" rel="noopener noreferrer">https://www.linkedin.com/in/bunga-citra-38378440b/</a></li>
+          </ul>
+
+          <div class="contact-buttons">
+            <a class="coupon-btn secondary" href="mailto:bungasitumorang738@gmail.com">Email Bunga</a>
+            <a class="coupon-btn" href="https://github.com/bbbunga" target="_blank" rel="noopener noreferrer">GitHub</a>
+            <a class="coupon-btn secondary" href="https://www.linkedin.com/in/bunga-citra-38378440b/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      Bunga’s Digital Archive ✦ Warm Retro Portfolio ✦ Built with semantic HTML, CSS, and JavaScript
+    </div>
+  </footer>
+
+  <script>
+    const projectCards = document.querySelectorAll('[data-project-card]');
+
+    function toggleProjectCard(card) {
+      const button = card.querySelector('button');
+      const details = card.querySelector('.project-details');
+      const isExpanded = card.classList.toggle('expanded');
+
+      button.setAttribute('aria-expanded', String(isExpanded));
+      button.textContent = isExpanded ? 'Close Archive' : 'Open Archive';
+      details.setAttribute('aria-hidden', String(!isExpanded));
+    }
+
+    projectCards.forEach((card) => {
+      const button = card.querySelector('button');
+
+      button.addEventListener('click', (event) => {
+        event.stopPropagation();
+        toggleProjectCard(card);
+      });
+
+      card.addEventListener('click', (event) => {
+        const clickedLink = event.target.closest('a');
+        const clickedButton = event.target.closest('button');
+        if (clickedLink || clickedButton) return;
+        toggleProjectCard(card);
+      });
+
+      card.addEventListener('keydown', (event) => {
+        if ((event.key === 'Enter' || event.key === ' ') && event.target === card) {
+          event.preventDefault();
+          toggleProjectCard(card);
+        }
+      });
+
+      card.setAttribute('tabindex', '0');
+      card.setAttribute('role', 'button');
+      card.setAttribute('aria-label', 'Open project archive details');
+    });
+  </script>
+</body>
+</html>
