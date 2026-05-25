@@ -1,6 +1,249 @@
 "use client";
 
-import { KeyboardEvent, MouseEvent, useState } from "react";
+import {
+  KeyboardEvent,
+  MouseEvent,
+  useEffect,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
+
+type ThemeMode = "light" | "dark" | "system";
+
+const themeStorageKey = "bunga-theme-mode";
+
+const themeOptions: { value: ThemeMode; label: string }[] = [
+  { value: "system", label: "System" },
+  { value: "light", label: "Light" },
+  { value: "dark", label: "Dark" },
+];
+
+const themeSubscribers = new Set<() => void>();
+
+function isThemeMode(value: string | null): value is ThemeMode {
+  return value === "light" || value === "dark" || value === "system";
+}
+
+function getThemeSnapshot(): ThemeMode {
+  if (typeof window === "undefined") return "system";
+
+  try {
+    const storedTheme = window.localStorage.getItem(themeStorageKey);
+
+    return isThemeMode(storedTheme) ? storedTheme : "system";
+  } catch {
+    return "system";
+  }
+}
+
+function getThemeServerSnapshot(): ThemeMode {
+  return "system";
+}
+
+function subscribeToThemeStore(onStoreChange: () => void) {
+  if (typeof window === "undefined") return () => {};
+
+  const handleStorage = (event: StorageEvent) => {
+    if (event.key === themeStorageKey) {
+      onStoreChange();
+    }
+  };
+
+  themeSubscribers.add(onStoreChange);
+  window.addEventListener("storage", handleStorage);
+
+  return () => {
+    themeSubscribers.delete(onStoreChange);
+    window.removeEventListener("storage", handleStorage);
+  };
+}
+
+function saveThemeMode(mode: ThemeMode) {
+  try {
+    window.localStorage.setItem(themeStorageKey, mode);
+  } catch {
+    return;
+  }
+
+  themeSubscribers.forEach((onStoreChange) => onStoreChange());
+}
+
+function resolveTheme(mode: ThemeMode) {
+  if (mode !== "system") return mode;
+
+  return window.matchMedia("(prefers-color-scheme: dark)").matches
+    ? "dark"
+    : "light";
+}
+
+function ThemeGlyph({ mode }: { mode: ThemeMode }) {
+  if (mode === "light") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="4" />
+        <path d="M12 2v2.3M12 19.7V22M4.9 4.9l1.6 1.6M17.5 17.5l1.6 1.6M2 12h2.3M19.7 12H22M4.9 19.1l1.6-1.6M17.5 6.5l1.6-1.6" />
+      </svg>
+    );
+  }
+
+  if (mode === "dark") {
+    return (
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M20.4 15.2A8.2 8.2 0 0 1 8.8 3.6a8.4 8.4 0 1 0 11.6 11.6Z" />
+      </svg>
+    );
+  }
+
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <rect x="4" y="5" width="16" height="11" rx="2" />
+      <path d="M9 20h6M12 16v4" />
+    </svg>
+  );
+}
+
+function ThemeTriggerGlyph() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 3v2.1M12 18.9V21M4.9 4.9l1.5 1.5M17.6 17.6l1.5 1.5M3 12h2.1M18.9 12H21M4.9 19.1l1.5-1.5M17.6 6.4l1.5-1.5" />
+      <circle cx="12" cy="12" r="4.2" />
+      <path d="M14.8 8.9a5.9 5.9 0 0 0 0 6.2 4.2 4.2 0 1 1 0-6.2Z" />
+    </svg>
+  );
+}
+
+function ThemeSwitcher() {
+  const themeMode = useSyncExternalStore<ThemeMode>(
+    subscribeToThemeStore,
+    getThemeSnapshot,
+    getThemeServerSnapshot,
+  );
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+    const applyTheme = () => {
+      const resolvedTheme = resolveTheme(themeMode);
+      root.dataset.theme = resolvedTheme;
+      root.style.colorScheme = resolvedTheme;
+    };
+
+    applyTheme();
+
+    if (themeMode !== "system") return;
+
+    mediaQuery.addEventListener("change", applyTheme);
+
+    return () => {
+      mediaQuery.removeEventListener("change", applyTheme);
+    };
+  }, [themeMode]);
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    optionRefs.current[0]?.focus();
+
+    const handlePointerDown = (event: PointerEvent) => {
+      if (menuRef.current?.contains(event.target as Node)) return;
+
+      setIsOpen(false);
+    };
+
+    const handleKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsOpen(false);
+        triggerRef.current?.focus();
+      }
+    };
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
+
+  return (
+    <div className="theme-menu" ref={menuRef}>
+      <button
+        className="theme-trigger"
+        type="button"
+        ref={triggerRef}
+        aria-label={`Pilih tema. Saat ini ${themeMode}.`}
+        aria-haspopup="menu"
+        aria-expanded={isOpen}
+        onClick={() => setIsOpen((current) => !current)}
+      >
+        <ThemeTriggerGlyph />
+      </button>
+
+      {isOpen ? (
+        <div className="theme-dropdown" role="menu" aria-label="Pilihan tema">
+          {themeOptions.map((option, index) => (
+            <button
+              className={`theme-menu-item${
+                themeMode === option.value ? " is-active" : ""
+              }`}
+              type="button"
+              key={option.value}
+              ref={(element) => {
+                optionRefs.current[index] = element;
+              }}
+              role="menuitemradio"
+              aria-checked={themeMode === option.value}
+              onClick={() => {
+                saveThemeMode(option.value);
+                setIsOpen(false);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === "ArrowDown" || event.key === "ArrowRight") {
+                  event.preventDefault();
+                  optionRefs.current[
+                    (index + 1) % themeOptions.length
+                  ]?.focus();
+                }
+
+                if (event.key === "ArrowUp" || event.key === "ArrowLeft") {
+                  event.preventDefault();
+                  optionRefs.current[
+                    (index - 1 + themeOptions.length) % themeOptions.length
+                  ]?.focus();
+                }
+
+                if (event.key === "Home") {
+                  event.preventDefault();
+                  optionRefs.current[0]?.focus();
+                }
+
+                if (event.key === "End") {
+                  event.preventDefault();
+                  optionRefs.current[themeOptions.length - 1]?.focus();
+                }
+              }}
+            >
+              <span className="theme-menu-icon">
+                <ThemeGlyph mode={option.value} />
+              </span>
+              <span>{option.label}</span>
+              <span className="theme-check" aria-hidden="true">
+                ✓
+              </span>
+            </button>
+          ))}
+        </div>
+      ) : null}
+    </div>
+  );
+}
 
 const projects = [
   {
@@ -262,12 +505,16 @@ export default function Home() {
             <p>Informatics Engineering Student</p>
           </a>
 
-          <nav className="nav-ribbon" aria-label="Navigasi utama">
-            <a href="#about">About</a>
-            <a href="#projects">Project Archive</a>
-            <a href="#skills">Skills</a>
-            <a href="#contact">Contact</a>
-          </nav>
+          <div className="header-actions">
+            <nav className="nav-ribbon" aria-label="Navigasi utama">
+              <a href="#about">About</a>
+              <a href="#projects">Project Archive</a>
+              <a href="#skills">Skills</a>
+              <a href="#contact">Contact</a>
+            </nav>
+
+            <ThemeSwitcher />
+          </div>
         </div>
       </header>
 
