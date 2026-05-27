@@ -554,17 +554,9 @@ export default function Home() {
               </p>
 
               <p className="intro">
-                Hi, I’m Bunga Citra Lestari Situmorang, an Informatics 
-                Engineering student at Politeknik Negeri Batam 
-                with a specialization interest in Artificial Intelligence. 
-                I am interested in web development, database management, 
-                software testing, and AI-based application development. 
-                Through semester-based Project Based Learning projects, 
-                I have been learning to build applications using Laravel, PHP, 
-                MySQL, Next.js, and Python. I have also started exploring generative AI, 
-                deep learning, computer vision, and diffusion model concepts through academic projects, 
-                while continuing to improve my skills in documentation, usability, problem solving, 
-                and reliable project delivery.
+                A personal collection of project notes, digital experiments, 
+                and semester-based works exploring web development, software testing, 
+                and introductory artificial intelligence.
               </p>
 
               <div className="cta-row">
@@ -621,15 +613,15 @@ export default function Home() {
             <div className="about-grid">
               <article className="retro-panel">
                 <p>
-                  Bunga Citra Lestari Situmorang is a fourth-semester
-                  Informatics Engineering student at Politeknik Negeri Batam.
-                  Her academic experience is centered on Project Based Learning,
-                  where she has been involved in collaborative semester projects
-                  related to web application development, application design,
-                  documentation, and introductory artificial intelligence topics.
-                  Through these projects, she is gradually building her
-                  understanding of software development, machine learning
-                  fundamentals, computer vision, and generative AI concepts.
+                  Bunga Citra Lestari Situmorang is a fourth-semester Informatics 
+                  Engineering student at Politeknik Negeri Batam with 
+                  a specialization interest in Artificial Intelligence. 
+                  Her academic experience is centered on Project Based Learning, 
+                  where she has been involved in collaborative semester projects related to 
+                  web application development, database management, software testing, documentation, 
+                  and introductory AI-based topics. Through these projects, she is gradually building her 
+                  understanding of software development, generative AI, deep learning, computer vision, 
+                  and diffusion model concepts.
                 </p>
               </article>
 
