@@ -331,10 +331,17 @@ const skillGroups = [
   {
     title: "Technical Skills",
     skills: [
-      "Basic Web Development",
-      "Application Design",
-      "Basic Databases",
+      "Web Development",
+      "UI/UX Design",
+      "Database Management",
+      "Laravel",
+      "PHP",
+      "MySQL",
+      "Next.js",
+      "Tailwind CSS",
+      "JavaScript",
       "Python Fundamentals",
+      "Software Testing",
       "Machine Learning Fundamentals",
       "Introductory Deep Learning Concepts",
       "Introductory Computer Vision Concepts",
@@ -344,13 +351,14 @@ const skillGroups = [
   {
     title: "Tools",
     skills: [
-      "Git",
-      "GitHub",
+      "Git/GitHub",
       "Visual Studio Code",
       "Microsoft Word",
       "Figma/Canva",
       "Postman",
-      "WSL",
+      "Excel",
+      "Selenium (Basic)",
+      "Windows Subsystem for Linux (WSL)",
       "Basic Command Line",
     ],
   },
@@ -361,18 +369,20 @@ const skillGroups = [
       "Communication",
       "Problem Solving",
       "Time Management",
+      "Adaptability",
       "Willingness to Learn",
+      "Presentation Skills"
     ],
   },
   {
     title: "Interests",
     skills: [
       "Software Development",
+      "Digital Product Development",
       "Artificial Intelligence",
       "Machine Learning",
-      "Computer Vision Learning",
+      "Introductory Computer Vision",
       "Generative AI Learning",
-      "Digital Product Development",
     ],
   },
 ];
@@ -536,7 +546,7 @@ export default function Home() {
 
               <span className="accent">
                 Collected works & curious experiments
-              </span>
+              </span>-
 
               <p className="subheadline">
                 Informatics Engineering • Software Development • AI Learning
@@ -544,12 +554,17 @@ export default function Home() {
               </p>
 
               <p className="intro">
-                Hi, I’m Bunga Citra Lestari Situmorang, an Informatics
-                Engineering student at Politeknik Negeri Batam with an interest
-                in software development and artificial intelligence. I am
-                currently building foundational skills through academic projects,
-                especially in web-based application development, machine
-                learning fundamentals, and introductory AI-related topics.
+                Hi, I’m Bunga Citra Lestari Situmorang, an Informatics 
+                Engineering student at Politeknik Negeri Batam 
+                with a specialization interest in Artificial Intelligence. 
+                I am interested in web development, database management, 
+                software testing, and AI-based application development. 
+                Through semester-based Project Based Learning projects, 
+                I have been learning to build applications using Laravel, PHP, 
+                MySQL, Next.js, and Python. I have also started exploring generative AI, 
+                deep learning, computer vision, and diffusion model concepts through academic projects, 
+                while continuing to improve my skills in documentation, usability, problem solving, 
+                and reliable project delivery.
               </p>
 
               <div className="cta-row">
