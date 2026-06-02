@@ -77,6 +77,43 @@ function resolveTheme(mode: ThemeMode) {
     : "light";
 }
 
+// Scroll reveal hook
+function useScrollReveal() {
+  useEffect(() => {
+    // Check for reduced motion preference
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) {
+      // Add is-revealed class immediately to all elements
+      const revealElements = document.querySelectorAll("[data-reveal]");
+      revealElements.forEach((el) => el.classList.add("is-revealed"));
+      return;
+    }
+
+    const handleIntersection = (entries: IntersectionObserverEntry[]) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-revealed");
+        }
+      });
+    };
+
+    const observer = new IntersectionObserver(handleIntersection, {
+      threshold: 0.1,
+      rootMargin: "0px 0px -50px 0px",
+    });
+
+    // Observe all reveal elements
+    const revealElements = document.querySelectorAll("[data-reveal]");
+    revealElements.forEach((el) => {
+      observer.observe(el);
+    });
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
+}
+
 function ThemeGlyph({ mode }: { mode: ThemeMode }) {
   if (mode === "light") {
     return (
@@ -181,7 +218,7 @@ function ThemeSwitcher() {
         aria-label={`Pilih tema. Saat ini ${themeMode}.`}
         aria-haspopup="menu"
         aria-expanded={isOpen}
-        onClick={() => setIsOpen((current) => !current)}
+        onClick={() => setIsOpen((current: boolean) => !current)}
       >
         <ThemeTriggerGlyph />
       </button>
@@ -195,7 +232,7 @@ function ThemeSwitcher() {
               }`}
               type="button"
               key={option.value}
-              ref={(element) => {
+              ref={(element: HTMLButtonElement | null) => {
                 optionRefs.current[index] = element;
               }}
               role="menuitemradio"
@@ -204,7 +241,7 @@ function ThemeSwitcher() {
                 saveThemeMode(option.value);
                 setIsOpen(false);
               }}
-              onKeyDown={(event) => {
+              onKeyDown={(event: React.KeyboardEvent<HTMLButtonElement>) => {
                 if (event.key === "ArrowDown" || event.key === "ArrowRight") {
                   event.preventDefault();
                   optionRefs.current[
@@ -260,8 +297,8 @@ const projects = [
     ],
     role: "Team Member",
     focus: "Application Design, Requirement Planning, Workflow Design",
-    repoUrl: "-",
-    demoUrl: "-",
+    repoUrl: "",
+    demoUrl: "",
     repoLabel: "GitHub repo for Clothing Rental Application",
     demoLabel: "Live demo for Clothing Rental Application",
   },
@@ -321,27 +358,29 @@ const projects = [
     focus:
       "Deep Learning, Computer Vision, Sign Language Recognition, Prototype Testing",
     repoUrl: "https://github.com/godlovesmei/signify-ai",
-    demoUrl: "-",
+    demoUrl: "",
     repoLabel: "GitHub repo for Sign Language Recognition System",
     demoLabel: "Live demo for Sign Language Recognition System",
   },
 ];
 
-const skillGroups = [
+const skillCategories = [
   {
-    title: "Technical Skills",
+    title: "Web Development",
     skills: [
-      "Web Development",
       "UI/UX Design",
-      "Database Management",
       "Laravel",
       "PHP",
       "MySQL",
       "Next.js",
       "Tailwind CSS",
       "JavaScript",
+    ],
+  },
+  {
+    title: "AI Foundations",
+    skills: [
       "Python Fundamentals",
-      "Software Testing",
       "Machine Learning Fundamentals",
       "Introductory Deep Learning Concepts",
       "Introductory Computer Vision Concepts",
@@ -349,17 +388,29 @@ const skillGroups = [
     ],
   },
   {
-    title: "Tools",
+    title: "Tools & Platforms",
     skills: [
       "Git/GitHub",
       "Visual Studio Code",
-      "Microsoft Word",
       "Figma/Canva",
       "Postman",
-      "Excel",
-      "Selenium (Basic)",
       "Windows Subsystem for Linux (WSL)",
       "Basic Command Line",
+    ],
+  },
+  {
+    title: "Quality Assurance",
+    skills: [
+      "Software Testing",
+      "Selenium (Basic)",
+      "Database Management",
+    ],
+  },
+  {
+    title: "Documentation",
+    skills: [
+      "Microsoft Word",
+      "Excel",
     ],
   },
   {
@@ -371,7 +422,7 @@ const skillGroups = [
       "Time Management",
       "Adaptability",
       "Willingness to Learn",
-      "Presentation Skills"
+      "Presentation Skills",
     ],
   },
   {
@@ -387,11 +438,11 @@ const skillGroups = [
   },
 ];
 
-function ProjectCard({ project }: { project: (typeof projects)[number] }) {
+function ProjectCard({ project, index }: { project: (typeof projects)[number]; index: number }) {
   const [expanded, setExpanded] = useState(false);
 
   const toggleProjectCard = () => {
-    setExpanded((current) => !current);
+    setExpanded((current: boolean) => !current);
   };
 
   const handleCardClick = (event: MouseEvent<HTMLElement>) => {
@@ -417,37 +468,38 @@ function ProjectCard({ project }: { project: (typeof projects)[number] }) {
 
   return (
     <article
-      className={`archive-card${expanded ? " expanded" : ""}`}
-      data-project-card
+      className={`project-file${expanded ? " is-expanded" : ""}`}
+      data-reveal
+      data-reveal-delay={index * 100}
       onClick={handleCardClick}
       onKeyDown={handleCardKeyDown}
       tabIndex={0}
       role="button"
       aria-label="Open project archive details"
     >
-      <div className="archive-top">
-        <span className="project-number">{project.number}</span>
-        <span className="semester-tag">{project.semester}</span>
+      <div className="file-header">
+        <span className="file-number">{project.number}</span>
+        <span className="file-semester">{project.semester}</span>
       </div>
 
       <h3>{project.title}</h3>
       <p>{project.summary}</p>
 
       <button
-        className="small-btn dark"
+        className="file-toggle"
         type="button"
         aria-expanded={expanded}
-        onClick={(event) => {
+        onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
           event.stopPropagation();
           toggleProjectCard();
         }}
       >
-        {expanded ? "Close Archive" : "Open Archive"}
+        {expanded ? "CLOSE FILE →" : "OPEN FILE →"}
       </button>
 
-      <div className="project-details" aria-hidden={!expanded}>
+      <div className="file-details" aria-hidden={!expanded}>
         <div>
-          <div className="project-details-inner">
+          <div className="file-details-inner">
             <h4>Full Description</h4>
             <ul>
               {project.details.map((detail) => (
@@ -461,36 +513,36 @@ function ProjectCard({ project }: { project: (typeof projects)[number] }) {
             <h4>Focus Areas</h4>
             <p>{project.focus}</p>
 
-            <div className="button-row">
+            <div className="file-links">
               {project.repoUrl ? (
                 <a
-                  className="small-btn"
+                  className="catalog-link"
                   href={project.repoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={project.repoLabel}
                 >
-                  GitHub Repo
+                  GitHub Repo →
                 </a>
               ) : (
-                <span className="small-btn is-disabled" aria-disabled="true">
+                <span className="catalog-link disabled" aria-disabled="true">
                   GitHub Repo
                 </span>
               )}
 
               {project.demoUrl ? (
                 <a
-                  className="small-btn"
+                  className="catalog-link"
                   href={project.demoUrl}
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={project.demoLabel}
                 >
-                  Live Demo
+                  Live Demo →
                 </a>
               ) : (
-                <span className="small-btn is-disabled" aria-disabled="true">
-                  Live Demo -
+                <span className="catalog-link disabled" aria-disabled="true">
+                  Live Demo
                 </span>
               )}
             </div>
@@ -502,25 +554,34 @@ function ProjectCard({ project }: { project: (typeof projects)[number] }) {
 }
 
 export default function Home() {
+  useScrollReveal();
+
   return (
     <>
       <a className="skip-link" href="#main">
-        Lewati ke konten utama
+        Skip to main content
       </a>
 
       <header className="site-header">
+        <div className="vintage-banner">
+          <div className="container">
+            <p className="banner-tagline">
+              INFORMATICS ENGINEERING • WEB DEVELOPMENT • SOFTWARE TESTING • AI LEARNING JOURNEY
+            </p>
+          </div>
+        </div>
         <div className="container header-wrap">
           <a className="brand" href="#hero" aria-label="Bunga home">
             <h1>BUNGA</h1>
-            <p>Informatics Engineering Student</p>
+            <p>Digital Archive</p>
           </a>
 
           <div className="header-actions">
-            <nav className="nav-ribbon" aria-label="Navigasi utama">
-              <a href="#about">About</a>
-              <a href="#projects">Project Archive</a>
-              <a href="#skills">Skills</a>
-              <a href="#contact">Contact</a>
+            <nav className="nav-ribbon" aria-label="Main navigation">
+              <a href="#about">ABOUT</a>
+              <a href="#projects">PROJECT ARCHIVE</a>
+              <a href="#skills">SKILLS</a>
+              <a href="#contact">CONTACT</a>
             </nav>
 
             <ThemeSwitcher />
@@ -531,27 +592,22 @@ export default function Home() {
       <main id="main">
         <section className="hero" id="hero" aria-labelledby="hero-title">
           <div className="container hero-grid">
-            <div className="poster-panel">
+            <div className="poster-panel" data-reveal>
               <div className="label-row" aria-label="Archive labels">
-                <span className="label orange">Archive</span>
-                <span className="label teal">Field Notes</span>
-                <span className="label cream">Now Showing</span>
+                <span className="label red">PBL FILE</span>
+                <span className="label yellow">NEW!</span>
+                <span className="label sage">OPEN FILE</span>
               </div>
 
               <h2 id="hero-title">
-                Bunga’s
+                BUNGA'S
                 <br />
-                Digital Archive
+                DIGITAL
+                <br />
+                ARCHIVE
               </h2>
 
-              <span className="accent">
-                Collected works & curious experiments
-              </span>-
-
-              <p className="subheadline">
-                Informatics Engineering • Software Development • AI Learning
-                Journey • PBL Project Archive
-              </p>
+              <div className="sticker-badge">PROJECT COLLECTION No. 04</div>
 
               <p className="intro">
                 A personal collection of project notes, digital experiments, 
@@ -560,11 +616,11 @@ export default function Home() {
               </p>
 
               <div className="cta-row">
-                <a className="coupon-btn" href="#projects">
-                  View Project Archive
+                <a className="catalog-btn primary" href="#projects">
+                  VIEW PROJECT ARCHIVE →
                 </a>
-                <a className="coupon-btn secondary" href="#contact">
-                  Contact Me
+                <a className="catalog-btn" href="#contact">
+                  CONTACT ME
                 </a>
               </div>
             </div>
@@ -572,46 +628,43 @@ export default function Home() {
             <aside
               className="side-card"
               aria-label="Personal archive decorations"
+              data-reveal
+              data-reveal-delay="100"
             >
-              <div>
-                <span className="label teal">PBL Collection</span>
-                <h3>Open File No. 04</h3>
+              <div className="field-note">
+                <span className="label sky">FIELD NOTES</span>
+                <h3>OPEN FILE<br />No. 04</h3>
+                <div className="note-meta">
+                  <p>✦ Batam, Riau Islands</p>
+                  <p>✦ Politeknik Negeri Batam</p>
+                  <p>✦ Informatics Engineering</p>
+                </div>
               </div>
 
               <a
-                className="stamp"
+                className="stamp-link"
                 href="#about"
-                aria-label="Buka bagian About Bunga"
+                aria-label="Go to About section"
               >
-                AI
-                <br />
-                VISION
-                <br />
-                STUDENT
+                <div className="vintage-stamp">
+                  AI<br />LEARNING<br />JOURNEY
+                </div>
               </a>
-
-              <div className="ticker">
-                <span>✦ Batam, Riau Islands</span>
-                <span>✦ Politeknik Negeri Batam</span>
-                <span>✦ Handmade Digital Scrapbook</span>
-              </div>
             </aside>
           </div>
         </section>
 
         <section className="section" id="about" aria-labelledby="about-title">
-          <span className="decor-star one">✹</span>
-
           <div className="container">
-            <div className="section-title">
-              <h2 className="ribbon-title" id="about-title">
-                About Bunga
+            <div className="section-header" data-reveal>
+              <h2 className="section-title" id="about-title">
+                ABOUT BUNGA
               </h2>
-              <p className="section-kicker">Field Notes</p>
+              <span className="label olive">FIELD NOTES</span>
             </div>
 
             <div className="about-grid">
-              <article className="retro-panel">
+              <article className="field-panel" data-reveal data-reveal-delay="100">
                 <p>
                   Bunga Citra Lestari Situmorang is a fourth-semester Informatics 
                   Engineering student at Politeknik Negeri Batam with 
@@ -625,25 +678,27 @@ export default function Home() {
                 </p>
               </article>
 
-              <aside className="retro-panel" aria-label="Profile details">
-                <ul className="details-list">
-                  <li>
-                    <strong>Location</strong> Batam, Riau Islands
-                  </li>
-                  <li>
-                    <strong>Education</strong> Politeknik Negeri Batam
-                  </li>
-                  <li>
-                    <strong>Major</strong> Informatics Engineering
-                  </li>
-                  <li>
-                    <strong>Current Semester</strong> Fourth Semester
-                  </li>
-                  <li>
-                    <strong>Focus</strong> Software Development, Web
-                    Development, AI Fundamentals, Machine Learning
-                  </li>
-                </ul>
+              <aside className="metadata-panel" data-reveal data-reveal-delay="200" aria-label="Profile details">
+                <div className="meta-row">
+                  <strong>LOCATION</strong>
+                  <span>Batam, Riau Islands</span>
+                </div>
+                <div className="meta-row">
+                  <strong>EDUCATION</strong>
+                  <span>Politeknik Negeri Batam</span>
+                </div>
+                <div className="meta-row">
+                  <strong>MAJOR</strong>
+                  <span>Informatics Engineering</span>
+                </div>
+                <div className="meta-row">
+                  <strong>CURRENT SEMESTER</strong>
+                  <span>Fourth Semester</span>
+                </div>
+                <div className="meta-row">
+                  <strong>FOCUS</strong>
+                  <span>Software Development, Web Development, AI Fundamentals, Machine Learning</span>
+                </div>
               </aside>
             </div>
           </div>
@@ -654,17 +709,15 @@ export default function Home() {
           id="projects"
           aria-labelledby="projects-title"
         >
-          <span className="decor-star two">✦</span>
-
           <div className="container">
-            <div className="section-title">
-              <h2 className="ribbon-title" id="projects-title">
-                Project Archive
+            <div className="section-header" data-reveal>
+              <h2 className="section-title" id="projects-title">
+                PROJECT ARCHIVE
               </h2>
-              <p className="section-kicker">Open File</p>
+              <span className="label peach">OPEN FILE</span>
             </div>
 
-            <p className="archive-subtitle">
+            <p className="section-intro" data-reveal data-reveal-delay="100">
               A collection of semester-based Project Based Learning projects
               that reflect my learning progress in application design, web
               development, documentation, teamwork, and introductory AI-related
@@ -672,8 +725,8 @@ export default function Home() {
             </p>
 
             <div className="projects-grid">
-              {projects.map((project) => (
-                <ProjectCard key={project.number} project={project} />
+              {projects.map((project, index) => (
+                <ProjectCard key={project.number} project={project} index={index} />
               ))}
             </div>
           </div>
@@ -681,26 +734,28 @@ export default function Home() {
 
         <section className="section" id="skills" aria-labelledby="skills-title">
           <div className="container">
-            <div className="section-title">
-              <h2 className="ribbon-title" id="skills-title">
-                Skills & Interests
+            <div className="section-header" data-reveal>
+              <h2 className="section-title" id="skills-title">
+                SKILLS & INTERESTS
               </h2>
-              <p className="section-kicker">Classified Ads</p>
+              <span className="label lime">CLASSIFIED ADS</span>
             </div>
 
-            <div
-              className="skills-board"
-              aria-label="Skills and interests notice board"
-            >
-              {skillGroups.map((group) => (
-                <article className="classified" key={group.title}>
-                  <h3>{group.title}</h3>
+            <div className="skills-grid">
+              {skillCategories.map((category, index) => (
+                <div
+                  key={category.title}
+                  className="skill-panel"
+                  data-reveal
+                  data-reveal-delay={index * 80}
+                >
+                  <h3>{category.title}</h3>
                   <ul>
-                    {group.skills.map((skill) => (
+                    {category.skills.map((skill) => (
                       <li key={skill}>{skill}</li>
                     ))}
                   </ul>
-                </article>
+                </div>
               ))}
             </div>
           </div>
@@ -712,23 +767,23 @@ export default function Home() {
           aria-labelledby="education-title"
         >
           <div className="container">
-            <div className="section-title">
-              <h2 className="ribbon-title" id="education-title">
-                Education
+            <div className="section-header" data-reveal>
+              <h2 className="section-title" id="education-title">
+                EDUCATION
               </h2>
-              <p className="section-kicker">Academic Record</p>
+              <span className="label steel">ACADEMIC RECORD</span>
             </div>
 
             <div className="education-grid">
-              <article className="note-card">
-                <span className="label orange">Current File</span>
+              <article className="record-card" data-reveal data-reveal-delay="100">
+                <span className="label red">CURRENT FILE</span>
                 <h3>Politeknik Negeri Batam</h3>
-                <p>Informatics Engineering</p>
+                <p><strong>Informatics Engineering</strong></p>
                 <p>Fourth-Semester Student | 2024 — Present</p>
               </article>
 
-              <article className="note-card">
-                <span className="label teal">Previous Record</span>
+              <article className="record-card" data-reveal data-reveal-delay="200">
+                <span className="label periwinkle">PREVIOUS RECORD</span>
                 <h3>SMA Swasta Prayatna Medan</h3>
                 <p>Graduated | 2021 — 2024</p>
               </article>
@@ -736,71 +791,71 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="section" id="contact" aria-labelledby="contact-title">
+        <section className="section section-contact" id="contact" aria-labelledby="contact-title">
           <div className="container">
-            <div className="section-title">
-              <h2 className="ribbon-title" id="contact-title">
-                Get In Touch
+            <div className="section-header" data-reveal>
+              <h2 className="section-title" id="contact-title">
+                GET IN TOUCH
               </h2>
-              <p className="section-kicker">Send a Note</p>
+              <span className="label yellow">SEND A NOTE</span>
             </div>
 
-            <div className="retro-panel contact-panel">
-              <ul className="contact-list">
-                <li>
-                  <span>Email</span>
+            <div className="contact-cta" data-reveal data-reveal-delay="100">
+              <div className="contact-info">
+                <div className="contact-row">
+                  <strong>EMAIL</strong>
                   <a href="mailto:bungasitumorang738@gmail.com">
                     bungasitumorang738@gmail.com
                   </a>
-                </li>
-                <li>
-                  <span>Location</span>
-                  Batam, Riau Islands
-                </li>
-                <li>
-                  <span>GitHub</span>
+                </div>
+                <div className="contact-row">
+                  <strong>LOCATION</strong>
+                  <span>Batam, Riau Islands</span>
+                </div>
+                <div className="contact-row">
+                  <strong>GITHUB</strong>
                   <a
                     href="https://github.com/bbbunga"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    https://github.com/bbbunga
+                    github.com/bbbunga
                   </a>
-                </li>
-                <li>
-                  <span>LinkedIn</span>
+                </div>
+                <div className="contact-row">
+                  <strong>LINKEDIN</strong>
                   <a
                     href="https://www.linkedin.com/in/bungacitras/"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    https://www.linkedin.com/in/bunga-citra-38378440b/
+                    linkedin.com/in/bungacitras
                   </a>
-                </li>
-              </ul>
+                </div>
+              </div>
 
               <div className="contact-buttons">
                 <a
-                  className="coupon-btn secondary"
+                  className="catalog-btn primary large"
                   href="mailto:bungasitumorang738@gmail.com"
                 >
-                  Email Bunga
+                  EMAIL BUNGA →
                 </a>
                 <a
-                  className="coupon-btn"
+                  className="catalog-btn"
                   href="https://github.com/bbbunga"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  GitHub
+                  GITHUB
                 </a>
                 <a
-                  className="coupon-btn secondary"
+                  className="catalog-btn"
                   href="https://www.linkedin.com/in/bungacitras/"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  LinkedIn
+                  LINKEDIN
                 </a>
               </div>
             </div>
@@ -810,8 +865,12 @@ export default function Home() {
 
       <footer>
         <div className="container">
-          Bunga’s Digital Archive ✦ Warm Retro Portfolio ✦ Built with semantic
-          HTML, CSS, and JavaScript
+          <p>
+            Bunga's Digital Archive ✦ Handmade Retro Portfolio ✦ Built with Next.js
+          </p>
+          <p className="footer-links">
+            <a href="#hero">HOME</a> • <a href="#about">ABOUT</a> • <a href="#projects">PROJECTS</a> • <a href="#skills">SKILLS</a> • <a href="#contact">CONTACT</a>
+          </p>
         </div>
       </footer>
     </>
