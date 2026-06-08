@@ -8,10 +8,13 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import { useStaggerReveal } from "@/hooks/useStaggerReveal";
 
 type ThemeMode = "light" | "dark" | "system";
 
 const themeStorageKey = "bunga-theme-mode";
+const themeTransitionDuration = 900;
+const themeCommitDelay = 650;
 
 const themeOptions: { value: ThemeMode; label: string }[] = [
   { value: "system", label: "System" },
@@ -157,9 +160,12 @@ function ThemeSwitcher() {
     getThemeServerSnapshot,
   );
   const [isOpen, setIsOpen] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const optionRefs = useRef<Array<HTMLButtonElement | null>>([]);
+  const commitTimerRef = useRef<number | null>(null);
+  const transitionTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -209,6 +215,52 @@ function ThemeSwitcher() {
     };
   }, [isOpen]);
 
+  useEffect(() => {
+    return () => {
+      if (commitTimerRef.current) {
+        window.clearTimeout(commitTimerRef.current);
+      }
+
+      if (transitionTimerRef.current) {
+        window.clearTimeout(transitionTimerRef.current);
+      }
+    };
+  }, []);
+
+  const chooseThemeMode = (nextMode: ThemeMode) => {
+    setIsOpen(false);
+
+    if (nextMode === themeMode || isTransitioning) return;
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    if (prefersReducedMotion) {
+      saveThemeMode(nextMode);
+      return;
+    }
+
+    const targetTheme = resolveTheme(nextMode);
+    setIsTransitioning(true);
+
+    window.dispatchEvent(
+      new CustomEvent("bunga-theme-transition", {
+        detail: { theme: targetTheme },
+      }),
+    );
+
+    commitTimerRef.current = window.setTimeout(() => {
+      saveThemeMode(nextMode);
+      commitTimerRef.current = null;
+    }, themeCommitDelay);
+
+    transitionTimerRef.current = window.setTimeout(() => {
+      setIsTransitioning(false);
+      transitionTimerRef.current = null;
+    }, themeTransitionDuration);
+  };
+
   return (
     <div className="theme-menu" ref={menuRef}>
       <button
@@ -218,6 +270,7 @@ function ThemeSwitcher() {
         aria-label={`Pilih tema. Saat ini ${themeMode}.`}
         aria-haspopup="menu"
         aria-expanded={isOpen}
+        disabled={isTransitioning}
         onClick={() => setIsOpen((current: boolean) => !current)}
       >
         <ThemeTriggerGlyph />
@@ -232,15 +285,13 @@ function ThemeSwitcher() {
               }`}
               type="button"
               key={option.value}
+              disabled={isTransitioning}
               ref={(element: HTMLButtonElement | null) => {
                 optionRefs.current[index] = element;
               }}
               role="menuitemradio"
               aria-checked={themeMode === option.value}
-              onClick={() => {
-                saveThemeMode(option.value);
-                setIsOpen(false);
-              }}
+              onClick={() => chooseThemeMode(option.value)}
               onKeyDown={(event: React.KeyboardEvent<HTMLButtonElement>) => {
                 if (event.key === "ArrowDown" || event.key === "ArrowRight") {
                   event.preventDefault();
@@ -440,6 +491,7 @@ const skillCategories = [
 
 function ProjectCard({ project, index }: { project: (typeof projects)[number]; index: number }) {
   const [expanded, setExpanded] = useState(false);
+  const revealRef = useStaggerReveal<HTMLElement>(index * 100);
 
   const toggleProjectCard = () => {
     setExpanded((current: boolean) => !current);
@@ -468,14 +520,13 @@ function ProjectCard({ project, index }: { project: (typeof projects)[number]; i
 
   return (
     <article
+      ref={revealRef}
       className={`project-file${expanded ? " is-expanded" : ""}`}
-      data-reveal
-      data-reveal-delay={index * 100}
       onClick={handleCardClick}
       onKeyDown={handleCardKeyDown}
       tabIndex={0}
       role="button"
-      aria-label="Open project archive details"
+      aria-label={`${expanded ? "Close" : "Open"} project archive details`}
     >
       <div className="file-header">
         <span className="file-number">{project.number}</span>
@@ -494,7 +545,10 @@ function ProjectCard({ project, index }: { project: (typeof projects)[number]; i
           toggleProjectCard();
         }}
       >
-        {expanded ? "CLOSE FILE →" : "OPEN FILE →"}
+        <span>{expanded ? "CLOSE FILE" : "OPEN FILE"}</span>
+        <span className="file-toggle-arrow" aria-hidden="true">
+          →
+        </span>
       </button>
 
       <div className="file-details" aria-hidden={!expanded}>
@@ -600,7 +654,7 @@ export default function Home() {
               </div>
 
               <h2 id="hero-title">
-                BUNGA'S
+                BUNGA&apos;S
                 <br />
                 DIGITAL
                 <br />
@@ -866,7 +920,7 @@ export default function Home() {
       <footer>
         <div className="container">
           <p>
-            Bunga's Digital Archive ✦ Handmade Retro Portfolio ✦ Built with Next.js
+            Bunga&apos;s Digital Archive ✦ Handmade Retro Portfolio ✦ Built with Next.js
           </p>
           <p className="footer-links">
             <a href="#hero">HOME</a> • <a href="#about">ABOUT</a> • <a href="#projects">PROJECTS</a> • <a href="#skills">SKILLS</a> • <a href="#contact">CONTACT</a>

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { ThemeTransition } from "@/components/ThemeTransition";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -40,7 +41,10 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: themeInitScript }}
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <ThemeTransition />
+        {children}
+      </body>
     </html>
   );
 }

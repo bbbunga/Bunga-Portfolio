@@ -89,6 +89,35 @@ body::before {
   color: #e0e0e0;
 }
 
+/* Theme transition sheet */
+.theme-transition-sheet {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  background: var(--canvas-white);
+  animation: theme-sheet-reveal 900ms cubic-bezier(0.76, 0, 0.24, 1) forwards;
+  clip-path: circle(0% at calc(100% - 34px) 34px);
+}
+
+.theme-transition-sheet[data-theme-target="dark"] {
+  background: #2a2a2a;
+}
+
+.theme-transition-sheet[data-theme-target="light"] {
+  background: #ffffff;
+}
+
+@keyframes theme-sheet-reveal {
+  from {
+    clip-path: circle(0% at calc(100% - 34px) 34px);
+  }
+
+  to {
+    clip-path: circle(150% at calc(100% - 34px) 34px);
+  }
+}
+
 a {
   color: inherit;
   text-decoration: underline;
@@ -252,6 +281,11 @@ a:hover {
 .theme-trigger[aria-expanded="true"] {
   background: var(--yellow-sticker);
   outline: none;
+}
+
+.theme-trigger:disabled,
+.theme-menu-item:disabled {
+  cursor: wait;
 }
 
 .theme-dropdown {
@@ -713,6 +747,9 @@ main {
 }
 
 .file-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   padding: 10px 16px;
   border: var(--border-thick);
   background: #000;
@@ -730,10 +767,24 @@ main {
   transform: translate(2px, 2px);
 }
 
+.file-toggle-arrow {
+  display: inline-block;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.project-file.is-expanded .file-toggle-arrow {
+  transform: rotate(90deg);
+}
+
 .file-details {
   display: grid;
   grid-template-rows: 0fr;
-  transition: grid-template-rows 0.3s ease;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition:
+    grid-template-rows 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    opacity 0.25s ease,
+    transform 0.25s ease;
 }
 
 .file-details > div {
@@ -742,6 +793,8 @@ main {
 
 .project-file.is-expanded .file-details {
   grid-template-rows: 1fr;
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .file-details-inner {
