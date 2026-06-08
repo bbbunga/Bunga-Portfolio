@@ -1,6 +1,7 @@
 "use client";
 
 import {
+  type CSSProperties,
   KeyboardEvent,
   MouseEvent,
   useEffect,
@@ -8,16 +9,35 @@ import {
   useState,
   useSyncExternalStore,
 } from "react";
+import type { IconType } from "react-icons";
+import { DiCss3 } from "react-icons/di";
+import { HiOutlineDocumentText } from "react-icons/hi2";
+import {
+  SiFigma,
+  SiGit,
+  SiGithub,
+  SiHtml5,
+  SiJavascript,
+  SiLaravel,
+  SiMysql,
+  SiNextdotjs,
+  SiPhp,
+  SiPostman,
+  SiPython,
+  SiReact,
+  SiSelenium,
+  SiTailwindcss,
+} from "react-icons/si";
+import { VscChecklist, VscVscode } from "react-icons/vsc";
 import { useStaggerReveal } from "@/hooks/useStaggerReveal";
 
-type ThemeMode = "light" | "dark" | "system";
+type ThemeMode = "light" | "dark";
 
 const themeStorageKey = "bunga-theme-mode";
 const themeTransitionDuration = 900;
 const themeCommitDelay = 650;
 
 const themeOptions: { value: ThemeMode; label: string }[] = [
-  { value: "system", label: "System" },
   { value: "light", label: "Light" },
   { value: "dark", label: "Dark" },
 ];
@@ -25,23 +45,23 @@ const themeOptions: { value: ThemeMode; label: string }[] = [
 const themeSubscribers = new Set<() => void>();
 
 function isThemeMode(value: string | null): value is ThemeMode {
-  return value === "light" || value === "dark" || value === "system";
+  return value === "light" || value === "dark";
 }
 
 function getThemeSnapshot(): ThemeMode {
-  if (typeof window === "undefined") return "system";
+  if (typeof window === "undefined") return "light";
 
   try {
     const storedTheme = window.localStorage.getItem(themeStorageKey);
 
-    return isThemeMode(storedTheme) ? storedTheme : "system";
+    return isThemeMode(storedTheme) ? storedTheme : "light";
   } catch {
-    return "system";
+    return "light";
   }
 }
 
 function getThemeServerSnapshot(): ThemeMode {
-  return "system";
+  return "light";
 }
 
 function subscribeToThemeStore(onStoreChange: () => void) {
@@ -72,13 +92,85 @@ function saveThemeMode(mode: ThemeMode) {
   themeSubscribers.forEach((onStoreChange) => onStoreChange());
 }
 
-function resolveTheme(mode: ThemeMode) {
-  if (mode !== "system") return mode;
+type SkillItem = {
+  label: string;
+  Icon: IconType;
+  color: string;
+};
 
-  return window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+type SkillCategory = {
+  title: string;
+  summary: string;
+  accent: string;
+  tint: string;
+  items: SkillItem[];
+};
+
+function SkillChip({ item }: { item: SkillItem }) {
+  const Icon = item.Icon;
+
+  return (
+    <li className="skill-chip">
+      <span className="skill-chip-icon" style={{ color: item.color }}>
+        <Icon aria-hidden="true" />
+      </span>
+      <span className="skill-chip-label">{item.label}</span>
+    </li>
+  );
 }
+
+const skillCategories: SkillCategory[] = [
+  {
+    title: "Programming Languages",
+    summary: "Core languages used in coursework and project prototypes.",
+    accent: "#e98972",
+    tint: "#f8e8e2",
+    items: [
+      { label: "Python", Icon: SiPython, color: "#3776AB" },
+      { label: "JavaScript", Icon: SiJavascript, color: "#F7DF1E" },
+      { label: "PHP", Icon: SiPhp, color: "#777BB4" },
+    ],
+  },
+  {
+    title: "Web & Frameworks",
+    summary: "Frontend stack used for web projects and portfolio work.",
+    accent: "#75acc6",
+    tint: "#e8f4fb",
+    items: [
+      { label: "HTML5", Icon: SiHtml5, color: "#E34F26" },
+      { label: "CSS3", Icon: DiCss3, color: "#1572B6" },
+      { label: "React", Icon: SiReact, color: "#61DAFB" },
+      { label: "Next.js", Icon: SiNextdotjs, color: "#111111" },
+      { label: "Tailwind CSS", Icon: SiTailwindcss, color: "#06B6D4" },
+    ],
+  },
+  {
+    title: "Backend & Data",
+    summary: "Server-side work and database basics from the CV.",
+    accent: "#848f52",
+    tint: "#eef3df",
+    items: [
+      { label: "Laravel", Icon: SiLaravel, color: "#FF2D20" },
+      { label: "MySQL", Icon: SiMysql, color: "#4479A1" },
+    ],
+  },
+  {
+    title: "Tools & QA",
+    summary: "Workflow tools and testing support used in daily work.",
+    accent: "#9faee3",
+    tint: "#eef0fb",
+    items: [
+      { label: "Git", Icon: SiGit, color: "#F05032" },
+      { label: "GitHub", Icon: SiGithub, color: "#181717" },
+      { label: "VS Code", Icon: VscVscode, color: "#007ACC" },
+      { label: "Postman", Icon: SiPostman, color: "#FF6C37" },
+      { label: "Selenium", Icon: SiSelenium, color: "#43B02A" },
+      { label: "Test Docs", Icon: HiOutlineDocumentText, color: "#5B6A78" },
+      { label: "Black Box", Icon: VscChecklist, color: "#5B6A78" },
+      { label: "Figma", Icon: SiFigma, color: "#F24E1E" },
+    ],
+  },
+];
 
 // Scroll reveal hook
 function useScrollReveal() {
@@ -127,28 +219,9 @@ function ThemeGlyph({ mode }: { mode: ThemeMode }) {
     );
   }
 
-  if (mode === "dark") {
-    return (
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M20.4 15.2A8.2 8.2 0 0 1 8.8 3.6a8.4 8.4 0 1 0 11.6 11.6Z" />
-      </svg>
-    );
-  }
-
   return (
     <svg viewBox="0 0 24 24" aria-hidden="true">
-      <rect x="4" y="5" width="16" height="11" rx="2" />
-      <path d="M9 20h6M12 16v4" />
-    </svg>
-  );
-}
-
-function ThemeTriggerGlyph() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M12 3v2.1M12 18.9V21M4.9 4.9l1.5 1.5M17.6 17.6l1.5 1.5M3 12h2.1M18.9 12H21M4.9 19.1l1.5-1.5M17.6 6.4l1.5-1.5" />
-      <circle cx="12" cy="12" r="4.2" />
-      <path d="M14.8 8.9a5.9 5.9 0 0 0 0 6.2 4.2 4.2 0 1 1 0-6.2Z" />
+      <path d="M20.4 15.2A8.2 8.2 0 0 1 8.8 3.6a8.4 8.4 0 1 0 11.6 11.6Z" />
     </svg>
   );
 }
@@ -169,23 +242,8 @@ function ThemeSwitcher() {
 
   useEffect(() => {
     const root = document.documentElement;
-    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
-
-    const applyTheme = () => {
-      const resolvedTheme = resolveTheme(themeMode);
-      root.dataset.theme = resolvedTheme;
-      root.style.colorScheme = resolvedTheme;
-    };
-
-    applyTheme();
-
-    if (themeMode !== "system") return;
-
-    mediaQuery.addEventListener("change", applyTheme);
-
-    return () => {
-      mediaQuery.removeEventListener("change", applyTheme);
-    };
+    root.dataset.theme = themeMode;
+    root.style.colorScheme = themeMode;
   }, [themeMode]);
 
   useEffect(() => {
@@ -241,12 +299,11 @@ function ThemeSwitcher() {
       return;
     }
 
-    const targetTheme = resolveTheme(nextMode);
     setIsTransitioning(true);
 
     window.dispatchEvent(
       new CustomEvent("bunga-theme-transition", {
-        detail: { theme: targetTheme },
+        detail: { theme: nextMode },
       }),
     );
 
@@ -267,13 +324,13 @@ function ThemeSwitcher() {
         className="theme-trigger"
         type="button"
         ref={triggerRef}
-        aria-label={`Pilih tema. Saat ini ${themeMode}.`}
+        aria-label={`Pilih tema. Saat ini ${themeMode === "light" ? "Light" : "Dark"}.`}
         aria-haspopup="menu"
         aria-expanded={isOpen}
         disabled={isTransitioning}
         onClick={() => setIsOpen((current: boolean) => !current)}
       >
-        <ThemeTriggerGlyph />
+        <ThemeGlyph mode={themeMode} />
       </button>
 
       {isOpen ? (
@@ -412,80 +469,6 @@ const projects = [
     demoUrl: "",
     repoLabel: "GitHub repo for Sign Language Recognition System",
     demoLabel: "Live demo for Sign Language Recognition System",
-  },
-];
-
-const skillCategories = [
-  {
-    title: "Web Development",
-    skills: [
-      "UI/UX Design",
-      "Laravel",
-      "PHP",
-      "MySQL",
-      "Next.js",
-      "Tailwind CSS",
-      "JavaScript",
-    ],
-  },
-  {
-    title: "AI Foundations",
-    skills: [
-      "Python Fundamentals",
-      "Machine Learning Fundamentals",
-      "Introductory Deep Learning Concepts",
-      "Introductory Computer Vision Concepts",
-      "Academic Exposure to Generative AI",
-    ],
-  },
-  {
-    title: "Tools & Platforms",
-    skills: [
-      "Git/GitHub",
-      "Visual Studio Code",
-      "Figma/Canva",
-      "Postman",
-      "Windows Subsystem for Linux (WSL)",
-      "Basic Command Line",
-    ],
-  },
-  {
-    title: "Quality Assurance",
-    skills: [
-      "Software Testing",
-      "Selenium (Basic)",
-      "Database Management",
-    ],
-  },
-  {
-    title: "Documentation",
-    skills: [
-      "Microsoft Word",
-      "Excel",
-    ],
-  },
-  {
-    title: "Soft Skills",
-    skills: [
-      "Teamwork",
-      "Communication",
-      "Problem Solving",
-      "Time Management",
-      "Adaptability",
-      "Willingness to Learn",
-      "Presentation Skills",
-    ],
-  },
-  {
-    title: "Interests",
-    skills: [
-      "Software Development",
-      "Digital Product Development",
-      "Artificial Intelligence",
-      "Machine Learning",
-      "Introductory Computer Vision",
-      "Generative AI Learning",
-    ],
   },
 ];
 
@@ -718,21 +701,39 @@ export default function Home() {
             </div>
 
             <div className="about-grid">
-              <article className="field-panel" data-reveal data-reveal-delay="100">
-                <p>
-                  Bunga Citra Lestari Situmorang is a fourth-semester Informatics 
-                  Engineering student at Politeknik Negeri Batam with 
-                  a specialization interest in Artificial Intelligence. 
-                  Her academic experience is centered on Project Based Learning, 
-                  where she has been involved in collaborative semester projects related to 
-                  web application development, database management, software testing, documentation, 
-                  and introductory AI-based topics. Through these projects, she is gradually building her 
-                  understanding of software development, generative AI, deep learning, computer vision, 
-                  and diffusion model concepts.
-                </p>
-              </article>
+              <div className="about-story-grid">
+                <article className="field-panel about-note primary" data-reveal data-reveal-delay="100">
+                  <span className="label peach">PROFILE NOTE</span>
+                  <h3>Academic Path</h3>
+                  <p>
+                    Bunga Citra Lestari Situmorang is a fourth-semester
+                    Informatics Engineering student at Politeknik Negeri Batam
+                    with a specialization interest in Artificial Intelligence.
+                  </p>
+                </article>
 
-              <aside className="metadata-panel" data-reveal data-reveal-delay="200" aria-label="Profile details">
+                <article className="field-panel about-note" data-reveal data-reveal-delay="150">
+                  <span className="label sage">PBL RECORD</span>
+                  <h3>Project Based Learning</h3>
+                  <p>
+                    Her academic experience is centered on collaborative
+                    semester projects related to web application development,
+                    database management, software testing, and documentation.
+                  </p>
+                </article>
+
+                <article className="field-panel about-note" data-reveal data-reveal-delay="200">
+                  <span className="label lime">AI DIRECTION</span>
+                  <h3>Learning Focus</h3>
+                  <p>
+                    Through these projects, she is gradually building her
+                    understanding of software development, generative AI, deep
+                    learning, computer vision, and diffusion model concepts.
+                  </p>
+                </article>
+              </div>
+
+              <aside className="metadata-panel" data-reveal data-reveal-delay="250" aria-label="Profile details">
                 <div className="meta-row">
                   <strong>LOCATION</strong>
                   <span>Batam, Riau Islands</span>
@@ -790,26 +791,41 @@ export default function Home() {
           <div className="container">
             <div className="section-header" data-reveal>
               <h2 className="section-title" id="skills-title">
-                SKILLS & INTERESTS
+                TECHNICAL SKILLS
               </h2>
-              <span className="label lime">CLASSIFIED ADS</span>
+              <span className="label lime">SELECTED STACK</span>
             </div>
+
+            <p className="section-intro" data-reveal data-reveal-delay="100">
+              A focused set of technologies aligned with my CV: web development,
+              backend basics, database work, tooling, and QA support.
+            </p>
 
             <div className="skills-grid">
               {skillCategories.map((category, index) => (
-                <div
+                <article
                   key={category.title}
                   className="skill-panel"
                   data-reveal
-                  data-reveal-delay={index * 80}
+                  data-reveal-delay={(index + 1) * 80}
+                  style={
+                    {
+                      "--skill-accent": category.accent,
+                      "--skill-tint": category.tint,
+                    } as CSSProperties
+                  }
                 >
-                  <h3>{category.title}</h3>
-                  <ul>
-                    {category.skills.map((skill) => (
-                      <li key={skill}>{skill}</li>
+                  <div className="skill-panel-header">
+                    <h3>{category.title}</h3>
+                    <p>{category.summary}</p>
+                  </div>
+
+                  <ul className="skill-chip-grid">
+                    {category.items.map((item) => (
+                      <SkillChip key={item.label} item={item} />
                     ))}
                   </ul>
-                </div>
+                </article>
               ))}
             </div>
           </div>

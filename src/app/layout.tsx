@@ -12,12 +12,7 @@ const themeInitScript = `
 (() => {
   try {
     const storedTheme = window.localStorage.getItem("bunga-theme-mode");
-    const mode =
-      storedTheme === "light" || storedTheme === "dark" || storedTheme === "system"
-        ? storedTheme
-        : "system";
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    const resolvedTheme = mode === "system" ? (prefersDark ? "dark" : "light") : mode;
+    const resolvedTheme = storedTheme === "dark" ? "dark" : "light";
 
     document.documentElement.dataset.theme = resolvedTheme;
     document.documentElement.style.colorScheme = resolvedTheme;
