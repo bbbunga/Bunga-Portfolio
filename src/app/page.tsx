@@ -10,25 +10,22 @@ import {
   useSyncExternalStore,
 } from "react";
 import type { IconType } from "react-icons";
-import { DiCss3 } from "react-icons/di";
-import { HiOutlineDocumentText } from "react-icons/hi2";
 import {
-  SiFigma,
   SiGit,
   SiGithub,
-  SiHtml5,
   SiJavascript,
   SiLaravel,
-  SiMysql,
   SiNextdotjs,
+  SiOpencv,
   SiPhp,
   SiPostman,
   SiPython,
+  SiPytorch,
   SiReact,
   SiSelenium,
-  SiTailwindcss,
+  SiTensorflow,
 } from "react-icons/si";
-import { VscChecklist, VscVscode } from "react-icons/vsc";
+import { VscVscode } from "react-icons/vsc";
 import { useStaggerReveal } from "@/hooks/useStaggerReveal";
 
 type ThemeMode = "light" | "dark";
@@ -119,6 +116,8 @@ function SkillChip({ item }: { item: SkillItem }) {
   );
 }
 
+const formatSkillIndex = (index: number) => String(index + 1).padStart(2, "0");
+
 const skillCategories: SkillCategory[] = [
   {
     title: "Programming Languages",
@@ -133,25 +132,13 @@ const skillCategories: SkillCategory[] = [
   },
   {
     title: "Web & Frameworks",
-    summary: "Frontend stack used for web projects and portfolio work.",
+    summary: "Frameworks used to build structured web applications.",
     accent: "#75acc6",
     tint: "#e8f4fb",
     items: [
-      { label: "HTML5", Icon: SiHtml5, color: "#E34F26" },
-      { label: "CSS3", Icon: DiCss3, color: "#1572B6" },
       { label: "React", Icon: SiReact, color: "#61DAFB" },
       { label: "Next.js", Icon: SiNextdotjs, color: "#111111" },
-      { label: "Tailwind CSS", Icon: SiTailwindcss, color: "#06B6D4" },
-    ],
-  },
-  {
-    title: "Backend & Data",
-    summary: "Server-side work and database basics from the CV.",
-    accent: "#848f52",
-    tint: "#eef3df",
-    items: [
       { label: "Laravel", Icon: SiLaravel, color: "#FF2D20" },
-      { label: "MySQL", Icon: SiMysql, color: "#4479A1" },
     ],
   },
   {
@@ -164,10 +151,18 @@ const skillCategories: SkillCategory[] = [
       { label: "GitHub", Icon: SiGithub, color: "#181717" },
       { label: "VS Code", Icon: VscVscode, color: "#007ACC" },
       { label: "Postman", Icon: SiPostman, color: "#FF6C37" },
-      { label: "Selenium", Icon: SiSelenium, color: "#43B02A" },
-      { label: "Test Docs", Icon: HiOutlineDocumentText, color: "#5B6A78" },
-      { label: "Black Box", Icon: VscChecklist, color: "#5B6A78" },
-      { label: "Figma", Icon: SiFigma, color: "#F24E1E" },
+      { label: "Selenium IDE", Icon: SiSelenium, color: "#43B02A" },
+    ],
+  },
+  {
+    title: "AI & ML",
+    summary: "Python libraries and machine learning basics used in AI learning.",
+    accent: "#848f52",
+    tint: "#eef3df",
+    items: [
+      { label: "OpenCV", Icon: SiOpencv, color: "#5C3EE8" },
+      { label: "PyTorch", Icon: SiPytorch, color: "#EE4C2C" },
+      { label: "TensorFlow", Icon: SiTensorflow, color: "#FF6F00" },
     ],
   },
 ];
@@ -551,37 +546,25 @@ function ProjectCard({ project, index }: { project: (typeof projects)[number]; i
             <p>{project.focus}</p>
 
             <div className="file-links">
-              {project.repoUrl ? (
-                <a
-                  className="catalog-link"
-                  href={project.repoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={project.repoLabel}
-                >
-                  GitHub Repo →
-                </a>
-              ) : (
-                <span className="catalog-link disabled" aria-disabled="true">
-                  GitHub Repo
-                </span>
-              )}
+              <a
+                className="catalog-link"
+                href={project.repoUrl || "#"}
+                target={project.repoUrl ? "_blank" : undefined}
+                rel={project.repoUrl ? "noopener noreferrer" : undefined}
+                aria-label={project.repoLabel}
+              >
+                GitHub Repo →
+              </a>
 
-              {project.demoUrl ? (
-                <a
-                  className="catalog-link"
-                  href={project.demoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={project.demoLabel}
-                >
-                  Live Demo →
-                </a>
-              ) : (
-                <span className="catalog-link disabled" aria-disabled="true">
-                  Live Demo
-                </span>
-              )}
+              <a
+                className="catalog-link"
+                href={project.demoUrl || "#"}
+                target={project.demoUrl ? "_blank" : undefined}
+                rel={project.demoUrl ? "noopener noreferrer" : undefined}
+                aria-label={project.demoLabel}
+              >
+                Live Demo →
+              </a>
             </div>
           </div>
         </div>
@@ -592,6 +575,85 @@ function ProjectCard({ project, index }: { project: (typeof projects)[number]; i
 
 export default function Home() {
   useScrollReveal();
+  const [isHeaderHidden, setIsHeaderHidden] = useState(false);
+  const [showBackToTop, setShowBackToTop] = useState(false);
+
+  useEffect(() => {
+    let previousScrollY = window.scrollY;
+    let ticking = false;
+    const scrollThreshold = 8;
+    const hideAfter = 120;
+
+    const updateHeaderVisibility = () => {
+      const currentScrollY = window.scrollY;
+      const scrollDelta = currentScrollY - previousScrollY;
+
+      setShowBackToTop(currentScrollY > 420);
+
+      if (currentScrollY <= 20) {
+        setIsHeaderHidden(false);
+      } else if (scrollDelta > scrollThreshold && currentScrollY > hideAfter) {
+        setIsHeaderHidden(true);
+      } else if (scrollDelta < -scrollThreshold) {
+        setIsHeaderHidden(false);
+      }
+
+      previousScrollY = currentScrollY;
+      ticking = false;
+    };
+
+    const handleScroll = () => {
+      if (ticking) return;
+
+      ticking = true;
+      window.requestAnimationFrame(updateHeaderVisibility);
+    };
+
+    updateHeaderVisibility();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  const scrollToTop = () => {
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)",
+    ).matches;
+
+    if (prefersReducedMotion) {
+      window.scrollTo({ top: 0 });
+      return;
+    }
+
+    const startY = window.scrollY;
+    const pixelsPerMillisecond = 4.2;
+    const duration = Math.min(760, Math.max(360, startY / pixelsPerMillisecond));
+    const startTime = window.performance.now();
+    const root = document.documentElement;
+    const previousScrollBehavior = root.style.scrollBehavior;
+
+    root.style.scrollBehavior = "auto";
+
+    const animateScroll = (currentTime: number) => {
+      const elapsed = currentTime - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      window.scrollTo({
+        top: startY * (1 - progress),
+        behavior: "instant",
+      });
+
+      if (progress < 1) {
+        window.requestAnimationFrame(animateScroll);
+      } else {
+        root.style.scrollBehavior = previousScrollBehavior;
+      }
+    };
+
+    window.requestAnimationFrame(animateScroll);
+  };
 
   return (
     <>
@@ -599,7 +661,9 @@ export default function Home() {
         Skip to main content
       </a>
 
-      <header className="site-header">
+      <header
+        className={`site-header${isHeaderHidden ? " is-hidden" : ""}`}
+      >
         <div className="vintage-banner">
           <div className="container">
             <p className="banner-tagline">
@@ -669,12 +733,26 @@ export default function Home() {
               data-reveal-delay="100"
             >
               <div className="field-note">
-                <span className="label sky">FIELD NOTES</span>
-                <h3>OPEN FILE<br />No. 04</h3>
+                <div className="side-card-kicker">
+                  <span className="label sky">FIELD NOTES</span>
+                  <span>2024 - Present</span>
+                </div>
+                <h3>Software<br />Learning<br />Archive</h3>
                 <div className="note-meta">
-                  <p>✦ Batam, Riau Islands</p>
-                  <p>✦ Politeknik Negeri Batam</p>
-                  <p>✦ Informatics Engineering</p>
+                  <p><strong>Base</strong><span>Batam, Riau Islands</span></p>
+                  <p><strong>Campus</strong><span>Politeknik Negeri Batam</span></p>
+                  <p><strong>Major</strong><span>Informatics Engineering</span></p>
+                </div>
+              </div>
+
+              <div className="archive-metrics" aria-label="Portfolio highlights">
+                <div>
+                  <strong>04</strong>
+                  <span>Semester Projects</span>
+                </div>
+                <div>
+                  <strong>AI</strong>
+                  <span>Learning Focus</span>
                 </div>
               </div>
 
@@ -716,7 +794,7 @@ export default function Home() {
                   <span className="label sage">PBL RECORD</span>
                   <h3>Project Based Learning</h3>
                   <p>
-                    Her academic experience is centered on collaborative
+                    My academic experience is centered on collaborative
                     semester projects related to web application development,
                     database management, software testing, and documentation.
                   </p>
@@ -726,7 +804,7 @@ export default function Home() {
                   <span className="label lime">AI DIRECTION</span>
                   <h3>Learning Focus</h3>
                   <p>
-                    Through these projects, she is gradually building her
+                    Through these projects, I am gradually building my
                     understanding of software development, generative AI, deep
                     learning, computer vision, and diffusion model concepts.
                   </p>
@@ -797,8 +875,9 @@ export default function Home() {
             </div>
 
             <p className="section-intro" data-reveal data-reveal-delay="100">
-              A focused set of technologies aligned with my CV: web development,
-              backend basics, database work, tooling, and QA support.
+              A practical stack map grouped by how I use each tool: writing
+              code, building web applications, testing workflows, and learning
+              AI fundamentals.
             </p>
 
             <div className="skills-grid">
@@ -815,6 +894,11 @@ export default function Home() {
                     } as CSSProperties
                   }
                 >
+                  <div className="skill-panel-topline">
+                    <span>{formatSkillIndex(index)}</span>
+                    <span>{category.items.length} skills</span>
+                  </div>
+
                   <div className="skill-panel-header">
                     <h3>{category.title}</h3>
                     <p>{category.summary}</p>
@@ -936,13 +1020,20 @@ export default function Home() {
       <footer>
         <div className="container">
           <p>
-            Bunga&apos;s Digital Archive ✦ Handmade Retro Portfolio ✦ Built with Next.js
-          </p>
-          <p className="footer-links">
-            <a href="#hero">HOME</a> • <a href="#about">ABOUT</a> • <a href="#projects">PROJECTS</a> • <a href="#skills">SKILLS</a> • <a href="#contact">CONTACT</a>
+            Bunga&apos;s Digital Archive ✦ All Rights Reserved © 2026
           </p>
         </div>
       </footer>
+
+      <button
+        className={`back-to-top-button${showBackToTop ? " is-visible" : ""}`}
+        type="button"
+        aria-label="Kembali ke atas"
+        title="Kembali ke atas"
+        onClick={scrollToTop}
+      >
+        <span aria-hidden="true">↑</span>
+      </button>
     </>
   );
 }
