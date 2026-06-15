@@ -4,7 +4,9 @@ import {
   type CSSProperties,
   KeyboardEvent,
   MouseEvent,
+  type ReactNode,
   useEffect,
+  useId,
   useRef,
   useState,
   useSyncExternalStore,
@@ -400,6 +402,7 @@ const projects = [
     ],
     role: "Team Member",
     focus: "Application Design, Requirement Planning, Workflow Design",
+    images: ["/gambar1.1.png", "/gambar1.2.png", "/gambar1.3.png"],
     repoUrl: "",
     demoUrl: "",
     repoLabel: "GitHub repo for Clothing Rental Application",
@@ -419,6 +422,7 @@ const projects = [
     ],
     role: "Team Member",
     focus: "Web Development, UI Planning, Application Logic, Documentation",
+    images: ["/gambar2.1.png", "/gambar2.2.png", "/gambar2.3.png"],
     repoUrl: "https://github.com/lihh72/mylodies-pbl",
     demoUrl: "https://mylodies.xyz/",
     repoLabel: "GitHub repo for MyLodies",
@@ -440,6 +444,7 @@ const projects = [
     role: "Team Member",
     focus:
       "Artificial Intelligence, Generative AI, Diffusion Models, Research Documentation",
+    images: ["/gambar3.1.png", "/gambar3.2.png", "/gambar3.3.png"],
     repoUrl: "https://github.com/nijam10/EtnivisAI",
     demoUrl: "https://tribevis-ai.vercel.app/",
     repoLabel: "GitHub repo for Diffusion Model project",
@@ -460,6 +465,7 @@ const projects = [
     role: "Team Member",
     focus:
       "Deep Learning, Computer Vision, Sign Language Recognition, Prototype Testing",
+    images: ["/gambar4.1.png", "/gambar4.2.png", "/gambar4.3.png"],
     repoUrl: "https://github.com/godlovesmei/signify-ai",
     demoUrl: "",
     repoLabel: "GitHub repo for Sign Language Recognition System",
@@ -467,13 +473,219 @@ const projects = [
   },
 ];
 
-function ProjectCard({ project, index }: { project: (typeof projects)[number]; index: number }) {
-  const [expanded, setExpanded] = useState(false);
-  const revealRef = useStaggerReveal<HTMLElement>(index * 100);
+type Project = (typeof projects)[number];
 
-  const toggleProjectCard = () => {
-    setExpanded((current: boolean) => !current);
-  };
+function ProjectVisual({
+  src,
+  alt,
+  fallback,
+}: {
+  src: string;
+  alt: string;
+  fallback: ReactNode;
+}) {
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+
+  if (failedSrc === src) {
+    return <div className="project-image-fallback">{fallback}</div>;
+  }
+
+  return (
+    // eslint-disable-next-line @next/next/no-img-element
+    <img src={src} alt={alt} onError={() => setFailedSrc(src)} />
+  );
+}
+
+function ProjectModal({
+  project,
+  onClose,
+}: {
+  project: Project | null;
+  onClose: () => void;
+}) {
+  const [activeImage, setActiveImage] = useState(0);
+  const titleId = useId();
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    if (!project) return;
+
+    closeButtonRef.current?.focus();
+  }, [project]);
+
+  useEffect(() => {
+    if (!project) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+        return;
+      }
+
+      if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+        event.preventDefault();
+        setActiveImage((current) =>
+          (current - 1 + project.images.length) % project.images.length,
+        );
+      }
+
+      if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+        event.preventDefault();
+        setActiveImage((current) => (current + 1) % project.images.length);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [onClose, project]);
+
+  if (!project) return null;
+
+  const currentImage = project.images[activeImage];
+
+  return (
+    <div className="project-modal-overlay" onClick={onClose}>
+      <section
+        className="project-modal"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby={titleId}
+        onClick={(event) => event.stopPropagation()}
+      >
+        <button
+          ref={closeButtonRef}
+          className="project-modal-close"
+          type="button"
+          aria-label="Close project file"
+          onClick={onClose}
+        >
+          ×
+        </button>
+
+        <div className="project-modal-media">
+          <div className="project-modal-main-image">
+            <ProjectVisual
+              src={currentImage}
+              alt={`${project.title} screenshot ${activeImage + 1}`}
+              fallback={
+                <>
+                  <span>{project.number}</span>
+                  <strong>Screenshot {activeImage + 1}</strong>
+                  <small>Add {currentImage.replace("/", "")} to public</small>
+                </>
+              }
+            />
+            <div className="project-modal-counter">
+              {activeImage + 1} / {project.images.length}
+            </div>
+          </div>
+
+          <div className="project-modal-thumbs" aria-label="Project screenshots">
+            {project.images.map((image, imageIndex) => (
+              <button
+                key={image}
+                className={`project-thumb${
+                  imageIndex === activeImage ? " is-active" : ""
+                }`}
+                type="button"
+                aria-label={`Show screenshot ${imageIndex + 1}`}
+                aria-current={imageIndex === activeImage ? "true" : undefined}
+                onClick={() => setActiveImage(imageIndex)}
+              >
+                <ProjectVisual
+                  src={image}
+                  alt=""
+                  fallback={<span>{imageIndex + 1}</span>}
+                />
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="project-modal-body">
+          <div className="project-modal-title-row">
+            <div>
+              <p className="project-modal-kicker">
+                {project.role} · {project.semester}
+              </p>
+              <h3 id={titleId}>{project.title}</h3>
+              <p>{project.summary}</p>
+            </div>
+            <span className="project-modal-number">{project.number}</span>
+          </div>
+
+          <div className="project-modal-grid">
+            <div className="project-modal-section">
+              <h4>Full Description</h4>
+              <ul>
+                {project.details.map((detail) => (
+                  <li key={detail}>{detail}</li>
+                ))}
+              </ul>
+            </div>
+
+            <aside className="project-modal-aside">
+              <div className="project-modal-focus">
+                <h4>Focus Areas</h4>
+                <p>{project.focus}</p>
+              </div>
+
+              <div className="project-modal-links">
+                <a
+                  className="project-modal-link-card"
+                  href={project.repoUrl || "#"}
+                  target={project.repoUrl ? "_blank" : undefined}
+                  rel={project.repoUrl ? "noopener noreferrer" : undefined}
+                  aria-label={project.repoLabel}
+                >
+                  <span className="project-modal-link-label">
+                    GitHub Repo
+                  </span>
+                  <span className="project-modal-link-meta">
+                    Source code and development notes
+                  </span>
+                  <span className="project-modal-link-arrow">→</span>
+                </a>
+
+                <a
+                  className="project-modal-link-card"
+                  href={project.demoUrl || "#"}
+                  target={project.demoUrl ? "_blank" : undefined}
+                  rel={project.demoUrl ? "noopener noreferrer" : undefined}
+                  aria-label={project.demoLabel}
+                >
+                  <span className="project-modal-link-label">Live Demo</span>
+                  <span className="project-modal-link-meta">
+                    Preview the project in action
+                  </span>
+                  <span className="project-modal-link-arrow">→</span>
+                </a>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
+
+function ProjectCard({
+  project,
+  index,
+  onOpen,
+}: {
+  project: Project;
+  index: number;
+  onOpen: (project: Project) => void;
+}) {
+  const revealRef = useStaggerReveal<HTMLElement>(index * 100);
 
   const handleCardClick = (event: MouseEvent<HTMLElement>) => {
     const target = event.target as HTMLElement;
@@ -483,7 +695,7 @@ function ProjectCard({ project, index }: { project: (typeof projects)[number]; i
 
     if (clickedLink || clickedButton || clickedDisabled) return;
 
-    toggleProjectCard();
+    onOpen(project);
   };
 
   const handleCardKeyDown = (event: KeyboardEvent<HTMLElement>) => {
@@ -492,19 +704,19 @@ function ProjectCard({ project, index }: { project: (typeof projects)[number]; i
       event.target === event.currentTarget
     ) {
       event.preventDefault();
-      toggleProjectCard();
+      onOpen(project);
     }
   };
 
   return (
     <article
       ref={revealRef}
-      className={`project-file${expanded ? " is-expanded" : ""}`}
+      className="project-file"
       onClick={handleCardClick}
       onKeyDown={handleCardKeyDown}
       tabIndex={0}
       role="button"
-      aria-label={`${expanded ? "Close" : "Open"} project archive details`}
+      aria-label={`Open ${project.title} project file`}
     >
       <div className="file-header">
         <span className="file-number">{project.number}</span>
@@ -517,58 +729,16 @@ function ProjectCard({ project, index }: { project: (typeof projects)[number]; i
       <button
         className="file-toggle"
         type="button"
-        aria-expanded={expanded}
         onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
           event.stopPropagation();
-          toggleProjectCard();
+          onOpen(project);
         }}
       >
-        <span>{expanded ? "CLOSE FILE" : "OPEN FILE"}</span>
+        <span>OPEN FILE</span>
         <span className="file-toggle-arrow" aria-hidden="true">
           →
         </span>
       </button>
-
-      <div className="file-details" aria-hidden={!expanded}>
-        <div>
-          <div className="file-details-inner">
-            <h4>Full Description</h4>
-            <ul>
-              {project.details.map((detail) => (
-                <li key={detail}>{detail}</li>
-              ))}
-            </ul>
-
-            <h4>Role</h4>
-            <p>{project.role}</p>
-
-            <h4>Focus Areas</h4>
-            <p>{project.focus}</p>
-
-            <div className="file-links">
-              <a
-                className="catalog-link"
-                href={project.repoUrl || "#"}
-                target={project.repoUrl ? "_blank" : undefined}
-                rel={project.repoUrl ? "noopener noreferrer" : undefined}
-                aria-label={project.repoLabel}
-              >
-                GitHub Repo →
-              </a>
-
-              <a
-                className="catalog-link"
-                href={project.demoUrl || "#"}
-                target={project.demoUrl ? "_blank" : undefined}
-                rel={project.demoUrl ? "noopener noreferrer" : undefined}
-                aria-label={project.demoLabel}
-              >
-                Live Demo →
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
     </article>
   );
 }
@@ -577,6 +747,8 @@ export default function Home() {
   useScrollReveal();
   const [isHeaderHidden, setIsHeaderHidden] = useState(false);
   const [showBackToTop, setShowBackToTop] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [activeProject, setActiveProject] = useState<Project | null>(null);
 
   useEffect(() => {
     let previousScrollY = window.scrollY;
@@ -616,6 +788,30 @@ export default function Home() {
       window.removeEventListener("scroll", handleScroll);
     };
   }, []);
+
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    const handleKeyDown = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    const handleResize = () => {
+      if (window.innerWidth > 960) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, [isMobileMenuOpen]);
 
   const scrollToTop = () => {
     const prefersReducedMotion = window.matchMedia(
@@ -662,7 +858,9 @@ export default function Home() {
       </a>
 
       <header
-        className={`site-header${isHeaderHidden ? " is-hidden" : ""}`}
+        className={`site-header${
+          isHeaderHidden && !isMobileMenuOpen ? " is-hidden" : ""
+        }${isMobileMenuOpen ? " is-menu-open" : ""}`}
       >
         <div className="vintage-banner">
           <div className="container">
@@ -672,20 +870,54 @@ export default function Home() {
           </div>
         </div>
         <div className="container header-wrap">
-          <a className="brand" href="#hero" aria-label="Bunga home">
+          <a
+            className="brand"
+            href="#hero"
+            aria-label="Bunga home"
+            onClick={() => setIsMobileMenuOpen(false)}
+          >
             <h1>BUNGA</h1>
             <p>Digital Archive</p>
           </a>
 
           <div className="header-actions">
-            <nav className="nav-ribbon" aria-label="Main navigation">
-              <a href="#about">ABOUT</a>
-              <a href="#projects">PROJECT ARCHIVE</a>
-              <a href="#skills">SKILLS</a>
-              <a href="#contact">CONTACT</a>
+            <nav
+              className="nav-ribbon"
+              id="main-navigation"
+              aria-label="Main navigation"
+            >
+              <a href="#about" onClick={() => setIsMobileMenuOpen(false)}>
+                ABOUT
+              </a>
+              <a href="#projects" onClick={() => setIsMobileMenuOpen(false)}>
+                PROJECT ARCHIVE
+              </a>
+              <a href="#skills" onClick={() => setIsMobileMenuOpen(false)}>
+                SKILLS
+              </a>
+              <a href="#contact" onClick={() => setIsMobileMenuOpen(false)}>
+                CONTACT
+              </a>
             </nav>
 
             <ThemeSwitcher />
+
+            <button
+              className="mobile-menu-toggle"
+              type="button"
+              aria-label={
+                isMobileMenuOpen
+                  ? "Close main navigation"
+                  : "Open main navigation"
+              }
+              aria-controls="main-navigation"
+              aria-expanded={isMobileMenuOpen}
+              onClick={() => setIsMobileMenuOpen((current) => !current)}
+            >
+              <span aria-hidden="true" />
+              <span aria-hidden="true" />
+              <span aria-hidden="true" />
+            </button>
           </div>
         </div>
       </header>
@@ -859,7 +1091,12 @@ export default function Home() {
 
             <div className="projects-grid">
               {projects.map((project, index) => (
-                <ProjectCard key={project.number} project={project} index={index} />
+                <ProjectCard
+                  key={project.number}
+                  project={project}
+                  index={index}
+                  onOpen={setActiveProject}
+                />
               ))}
             </div>
           </div>
@@ -1034,6 +1271,12 @@ export default function Home() {
       >
         <span aria-hidden="true">↑</span>
       </button>
+
+      <ProjectModal
+        key={activeProject?.number ?? "closed-project-modal"}
+        project={activeProject}
+        onClose={() => setActiveProject(null)}
+      />
     </>
   );
 }
